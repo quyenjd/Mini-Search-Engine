@@ -158,7 +158,7 @@ public:
     }
 };
 
-struct queryData
+class queryData
 {
 private:
     bool readNum (size_t& i, std::string& word, const std::string& str)
