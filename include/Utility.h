@@ -6,7 +6,12 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
+#include <fstream>
+#include <streambuf>
 #include <string>
+#include <vector>
+#include <windows.h>
 
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
@@ -408,6 +413,139 @@ public:
         if (is_type("double"))
             return fabs(values._tdouble - e.to_double()) < REAL_EPS;
         return false;
+    }
+};
+
+class dirHandler
+{
+private:
+    std::string DIR;
+    std::vector<std::string> _files;
+    bool isDir;
+    size_t _size; // in KB (not showing correct if it is a directory)
+
+    void here()
+    {
+        char buffer[MAX_PATH];
+        GetModuleFileName(NULL, buffer, MAX_PATH);
+        DIR = buffer;
+        back();
+    }
+
+    bool prepare()
+    {
+        while (DIR.back() == '\\')
+            DIR.pop_back();
+        _files.clear();
+        _size = -1;
+
+        DWORD dwAttrs = GetFileAttributes(DIR.c_str());
+        if (dwAttrs == INVALID_FILE_ATTRIBUTES)
+            throw std::runtime_error(std::string("'") + DIR + "': Invalid directory");
+        if (!(dwAttrs & FILE_ATTRIBUTE_DIRECTORY))
+        {
+            std::ifstream ifs(DIR);
+            ifs.seekg(0, std::ios_base::end);
+            _size = ifs.tellg() / 1024;
+            return isDir = false;
+        }
+
+        WIN32_FIND_DATA ffd;
+        HANDLE hFind = FindFirstFile((DIR + "\\*").c_str(), &ffd);
+        do
+        {
+            if ((std::string)ffd.cFileName == "." || (std::string)ffd.cFileName == "..")
+                continue;
+            _files.push_back((std::string)ffd.cFileName);
+        }
+        while (FindNextFile(hFind, &ffd));
+
+        if (GetLastError() != ERROR_NO_MORE_FILES)
+            throw std::runtime_error(std::string("'") + DIR + "': An error occurred when trying to read the directory");
+        FindClose(hFind);
+
+        return isDir = true;
+    }
+
+public:
+    dirHandler()
+    {
+        here();
+        prepare();
+    }
+
+    dirHandler (const std::string& directory)
+    {
+        DIR = directory;
+        prepare();
+    }
+
+    std::string dir() const
+    {
+        return DIR;
+    }
+
+    std::vector<std::string> files() const
+    {
+        return _files;
+    }
+
+    bool isDirectory() const
+    {
+        return isDir;
+    }
+
+    size_t size() const
+    {
+        return _size;
+    }
+
+    std::string readAll() const
+    {
+        if (isDir)
+            return "";
+
+        std::ifstream ifs(DIR);
+        return std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
+    }
+
+    dirHandler& back()
+    {
+        bool flag = false;
+        while (!DIR.empty() && !(flag && DIR.back() == '\\'))
+        {
+            flag = true;
+            DIR.pop_back();
+        }
+
+        prepare();
+        return *this;
+    }
+
+    dirHandler& next (const std::string& filename)
+    {
+        if (!isDir)
+            return *this;
+
+        bool found = false;
+        for (std::string file: _files)
+        {
+            bool ok = file.length() == filename.length();
+            for (size_t i = 0; ok && i < file.length(); ++i)
+                if (toupper(file[i]) != toupper(filename[i]))
+                    ok = false;
+            if (ok)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
+            DIR = DIR + '\\' + filename;
+
+        prepare();
+        return *this;
     }
 };
 

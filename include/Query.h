@@ -161,18 +161,20 @@ public:
 struct queryData
 {
 private:
-    bool readNum (int& i, std::string& word, const std::string& str)
+    bool readNum (size_t& i, std::string& word, const std::string& str)
     {
         bool flag = true;
         for (; i < str.length() && all(str[i]); ++i)
-            if (number(str[i]))
-                word += str[i];
-            else
+        {
+            if (!number(str[i]))
                 flag = false;
+            if ((!flag && normal(str[i])) || number(str[i]))
+                word += str[i];
+        }
         return flag;
     }
 
-    void readStr (int& i, std::string& word, const std::string& str)
+    void readStr (size_t& i, std::string& word, const std::string& str)
     {
         for (; i < str.length() && all(str[i]); ++i)
             if (normal(str[i]))
@@ -194,7 +196,7 @@ public:
     {
         std::string str(queryStr.to_str()), tmp;
         bool rangeFlag = false;
-        int i = 0;
+        size_t i = 0;
 
         while (i < str.length())
         {
@@ -217,7 +219,8 @@ public:
                 word = "$";
 
                 // if NaN, pop the dollar character.
-                if (!(numberFlag = readNum(++i, word, str)))
+                if (!(numberFlag = readNum(++i, word, str)) ||
+                    /* if a word contains only dollar sign, erase it. */ word.length() == 1)
                     word.erase(0, 1);
 
                 // if the string is now empty,
@@ -290,7 +293,10 @@ public:
             {
                 // if rangeFlag is still ON, push 'tmp' into the array first.
                 if (rangeFlag)
+                {
                     words.push_back(queryNode(tmp));
+                    rangeFlag = false;
+                }
                 // if NaN and 'word' is empty, push as wild.
                 if (word.empty())
                 {

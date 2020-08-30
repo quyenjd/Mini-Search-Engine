@@ -63,7 +63,7 @@ public:
     // get word that has a hash id
     std::string getWordById (int id) const
     {
-        return  id >= 1 && id <= words.size() ? words[id - 1] : "";
+        return  id >= 1 && id <= (int)words.size() ? words[id - 1] : "";
     }
 };
 
