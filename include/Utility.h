@@ -511,6 +511,8 @@ public:
 
     dirHandler& back()
     {
+        std::string tmp = DIR;
+
         bool flag = false;
         while (!DIR.empty() && !(flag && DIR.back() == '\\'))
         {
@@ -518,7 +520,11 @@ public:
             DIR.pop_back();
         }
 
-        prepare();
+        if (DIR.empty())
+            DIR = tmp;
+        else
+            prepare();
+
         return *this;
     }
 
@@ -542,9 +548,11 @@ public:
         }
 
         if (found)
+        {
             DIR = DIR + '\\' + filename;
+            prepare();
+        }
 
-        prepare();
         return *this;
     }
 };
