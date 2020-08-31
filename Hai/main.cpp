@@ -3,6 +3,10 @@
 int main()
 {
   Trie *trie = new Trie;
-  trie -> saveFiles("../data");
+  // trie -> loadFromFiles("./data");
+  trie -> readFromFile();
+  printResult(trie -> search("remember"));
+  // trie -> saveToFile();
+  trie -> clear();
   delete trie;
 }

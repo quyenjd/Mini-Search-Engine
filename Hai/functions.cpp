@@ -1,14 +1,13 @@
 #include "header.h"
 
-void Trie::saveFiles (string path)
+void Trie::loadFromFiles (string path)
 {
-
   ifstream inp;
   string content;
   int fileInd = 0;
 
   cout << "[INFO] Looking at path = " << path << "\n";
-  for(auto p: fs::directory_iterator(path.c_str()))
+  for(auto p : fs::directory_iterator(path.c_str()))
   {
     if (!isTextFile(p.path()))
       continue;
@@ -24,15 +23,16 @@ void Trie::saveFiles (string path)
 
     //do the saving here
     int pos = 0, tmp;
-    string buffer;
+    string word;
 
     while (1)
     {
       tmp = pos;
-      chunk = nextChunk(content, pos);
-      if (chunk.size() == 0)
+      word = nextWord(content, pos);
+      if (word.size() == 0)
         break;
-      Trie::insert(chunk, tmp, fileInd);
+      cout << "[INFO] word = " << word << " | with length = " << word.size() << "\n";
+      Trie::insert(word, tmp, fileInd);
     }
 
     inp.close();
@@ -40,56 +40,164 @@ void Trie::saveFiles (string path)
   }
 }
 
-void Trie::insert(string chunk, int pos, int fileInd)
+void Trie::insert (string word, int pos, int fileInd)
 {
-  for (int i = 0; i < min(chunk.size(), MAX_QUERY_LENGTH); i++)
+  TrieNode *cur = Trie::root;
+  for (int i = 0; i < word.size(); i++)
   {
-    Trie::table[i][charInd(chunk[i])].data.push_back(Data(fileInd, pos + i));
+
+    if (cur -> child.find(word[i]) == cur -> child.end())
+      cur -> child[word[i]] = new TrieNode;
+
+    cur = cur -> child[word[i]];
+    cur -> data.push_back(Data(fileInd, pos + i));
   }
 }
 
-int charInd(char ch)
+vector <Data> Trie::search (string query)
 {
-  //a-zA-Z0-9' '
-  if (ch >= 'a')
-    return ch - 'a';
-  else if (ch >= 'A')
-    return ch - 'A' + 26;
-  else if (ch >= '0')
-    return ch - '0' + 52;
-  else
-    return 62;
+  TrieNode *cur = Trie::root;
+  for (int i = 0; i < query.size(); i++)
+  {
+    if (cur -> child.find(query[i]) == cur -> child.end())
+      return vector <Data>();
+    else
+      cur = cur -> child[query[i]];
+  }
+  return cur -> data;
 }
 
-string nextChunk (string content, int &pos)
+void Trie::saveToFile()
 {
-  if (pos == content.length)
+  //Read till eof
+  //linkChar - "#" if it is leaf, go back
+  //#m -size of data vector
+  //m lines
+  //#fileInd #pos #isTitle
+  //#cont - can we continue go down?
+
+  ofstream out;
+  out.open("tree.bin", ios::binary);
+  Trie::root -> saveToFile(out);
+  out.close();
+  cout << "[INFO] Tree successfully saved\n";
+}
+
+void Trie::readFromFile()
+{
+  ifstream inp;
+  inp.open("tree.bin", ios::binary);
+  Trie::root -> readFromFile(inp);
+  inp.close();
+}
+
+void TrieNode::saveToFile(ofstream &out)
+{
+  int size = TrieNode::data.size();
+  out.write((char*)&size, 4);
+
+  for (int i = 0; i < size; i++)
+  {
+    out.write((char*)&(TrieNode::data[i].fileInd), 4);
+    out.write((char*)&(TrieNode::data[i].pos), 4);
+    out.write((char*)&(TrieNode::data[i].isTitle), 1);
+  }
+  
+  char tmp;
+
+  for (auto p = TrieNode::child.begin(); p != TrieNode::child.end(); p++)
+  {
+    tmp = p -> first;
+    out.write(&tmp, 1);
+    p -> second -> saveToFile(out);
+  }
+
+  tmp = '#';
+  out.write(&tmp, 1);
+  return;
+}
+
+void TrieNode::readFromFile(ifstream &inp)
+{
+  int size;
+  inp.read((char*)&size, 4);
+  for (int i = 0; i < size; i++)
+  {    
+    int fileInd, pos;
+    bool isTitle;
+    inp.read((char*)&fileInd, 4);
+    inp.read((char*)&pos, 4);
+    inp.read((char*)&isTitle, sizeof(isTitle));
+    TrieNode::data.push_back(Data(fileInd, pos, isTitle));
+  }
+  
+  char tmp;
+  while (1)
+  {
+    inp.read(&tmp, 1);
+    // cout << "[DEBUG] Next edge " << tmp << " " << inp.tellg() << "\n";
+    if (tmp == '#')
+      break;
+    
+    TrieNode::child[tmp] = new TrieNode;
+    TrieNode::child[tmp] -> readFromFile(inp);
+  }
+
+  return;
+}
+
+void Trie::clear()
+{
+  Trie::root -> clear();
+  delete Trie::root;
+  cout << "[INFO] Tree is successfully cleared\n";
+}
+
+void TrieNode::clear()
+{
+  for (auto p = TrieNode::child.begin(); p != TrieNode::child.end(); p++)
+  {
+    p -> second -> clear();
+    delete p -> second;
+  }
+}
+
+void printResult (vector <Data> res)
+{
+  if (res.size() == 0)
+  {
+    cout << "[INFO] There is no result for the query\n";
+    return;
+  }
+
+  cout << "[INFO] There are " << res.size() << " results of the query\n";
+  for (int i = 0; i < res.size(); i++)
+    cout << i + 1 << ". fileInd = " << res[i].fileInd << " pos = " << res[i].pos << " isTitle = " << res[i].isTitle << "\n";
+  cout << "[INFO] End of result\n";
+}
+
+string nextWord (string content, int &pos)
+{
+  if (pos == content.size())
     return "";
   
   string res;
   int cur;
 
-  while (1)
-  {
-    //Already sure that content[pos] is alphanum
-    cur = pos;
-    while (cur < content.size() && !isSeparator(content[cur])) cur++;
-    if (res.size() + cur - pos > MAX_QUERY_LENGTH)
-      break;
-    res += (res.size() ? ' ' : '') content.substr(pos, cur - pos);
-    while (cur < content.size() && isSeparator(content[cur])) cur++;
-    pos = cur;
-  }
-  
-  while (pos < content.size() && isSeparator(content[pos]))
-    pos++;
+  //Already sure that content[pos] is alphanum
+  cur = pos;
+  while (cur < content.size() && !isSeparator(content[cur])) cur++;
+
+  res += (res.size() ? " " : "") + content.substr(pos, cur - pos);
+  while (cur < content.size() && isSeparator(content[cur])) cur++;
+  pos = cur;
   
   return res;
 }
 
 bool isSeparator (char ch)
 {
-  return ch == ' ' || ch == '.' || ch == ',';
+  return ch == ' ' || ch == '.' || ch == ',' || ch == '\n' || ch == '\r' || ch == '\t';
 }
 
 bool isTextFile (string name)
