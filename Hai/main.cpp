@@ -5,7 +5,8 @@ int main()
   Trie *trie = new Trie;
   // trie -> loadFromFiles("./data");
   trie -> readFromFile();
-  printResult(trie -> search("remember"));
+  trie -> analytics();
+  // printResult(trie -> search("southern"));
   // trie -> saveToFile();
   trie -> clear();
   delete trie;
