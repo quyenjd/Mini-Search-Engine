@@ -21,9 +21,10 @@ class queryNode
 private:
     multitype V1, V2;
     bool _isWild, _isRange, _isIncluded, _isExcluded, _isSynonym;
-    std::vector<baseNode> occurrences;
 
 public:
+    std::vector<baseNode> occurrences;
+
     queryNode()
     {
         V1 = V2 = multitype();
