@@ -33,7 +33,7 @@ inline void string_copy (const Pchar from, Pchar& to)
 
 //Utils for baseData
 
-string nextWord (string content, int &ind, int &pos)
+string nextWord (string content, int &ind, int &pos, int &len)
 {
     if (ind == content.size())
         return "";
@@ -47,6 +47,7 @@ string nextWord (string content, int &ind, int &pos)
     while (cur < content.size() && !isSeparator(content[cur])) cur++;
 
     res = content.substr(ind, cur - ind);
+    len - cur - ind;
     ind = cur;
     
     return res;

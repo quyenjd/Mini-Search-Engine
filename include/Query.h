@@ -3,11 +3,12 @@
 
 #define number(x) (x >= '0' && x <= '9')
 #define normal(x) ((x >= 'A' && x <= 'Z') || (x >= 'a' && x <= 'z') || number(x))
-#define operat(x) (x == '-' || x == '+' || x == '*' || x == '#' || x == '$' || x == '~')
+#define operat(x) (x == '-' || x == '+' || x == '*' || x == '#' || x == '$' || x == '~' || x == '"')
 #define punc(x) (x == '\'')
 #define all(x) (normal(x) || operat(x) || punc(x))
 #define upper(x) ((x >= 'a' && x <= 'z') ? char(x - 32) : x)
 
+#include "Base.h"
 #include "Utility.h"
 #include <set>
 #include <string>
@@ -22,6 +23,8 @@ private:
     bool _isWild, _isRange, _isIncluded, _isExcluded, _isSynonym;
 
 public:
+    std::vector<baseNode> occurrences;
+
     queryNode()
     {
         V1 = V2 = multitype();
@@ -181,12 +184,29 @@ private:
                 word += upper(str[i]);
     }
 
+    bool readQuoted (size_t& i, std::string& word, const std::string& str)
+    {
+        word = "\"";
+        size_t tmp = ++i;
+        for (; i < str.length(); ++i)
+        {
+            word += upper(str[i]);
+            if (str[i] == '"')
+            {
+                ++i;
+                return true;
+            }
+        }
+        i = tmp;
+        return false;
+    }
+
 public:
     // array of keywords in the query.
     std::vector<queryNode> words;
 
     // array of resulting files' IDs (after searching).
-    std::vector<int> matchIDs;
+    std::set<int> matchIDs;
 
     queryData() {}
 
@@ -213,6 +233,13 @@ public:
                  excludedFlag = false,
                  synonymFlag = false;
 
+            // if exact match, read everything inside the quotes or only one word.
+            if (str[i] == '"')
+            {
+                if (!(includedFlag = readQuoted(i, word, str)))
+                    continue;
+            }
+            else
             // if price, loop through all consequent digits.
             if (str[i] == '$')
             {
@@ -269,6 +296,11 @@ public:
             {
                 word = "#";
                 readStr(++i, word, str);
+
+                if (word.length() == 1)
+                    continue;
+
+                includedFlag = true;
             }
             else
             // if no operation is specified, just read.
@@ -297,21 +329,33 @@ public:
                     words.push_back(queryNode(tmp));
                     rangeFlag = false;
                 }
-                // if NaN and 'word' is empty, push as wild.
+
+                // if some flag is ON, push with flag.
+                if (includedFlag || excludedFlag || synonymFlag)
+                {
+                    if (word.empty())
+                        continue;
+                    words.push_back(queryNode(word, includedFlag, excludedFlag, synonymFlag));
+                }
+                else
+                // if 'word' is empty, push as wild.
                 if (word.empty())
                 {
                     ++i;
                     words.push_back(queryNode());
                 }
                 else
-                // if some flag is ON, push with flag.
-                if (includedFlag || excludedFlag || synonymFlag)
-                    words.push_back(queryNode(word, includedFlag, excludedFlag, synonymFlag));
-                else
                 // if no flag is marked, check stopword and push.
                 if (!eliminateStopwords || stopwords.find(word) == stopwords.end())
                     words.push_back(queryNode(word));
             }
+        }
+
+        // if range flag is still ON here, push the buffered into array.
+        if (rangeFlag)
+        {
+            words.push_back(queryNode(tmp));
+            rangeFlag = false;
         }
     }
 };

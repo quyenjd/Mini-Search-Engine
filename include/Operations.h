@@ -1,25 +1,23 @@
 #ifndef SE_OPERATIONS_H
 #define SE_OPERATIONS_H
 
-#include "Base.h"
 #include "Query.h"
 
 const int SEPARATION_THRESHOLD = 3;
 
 namespace Operations
 {
-    void opAND (queryData& q, const baseData& bd);
-    void opOR (queryData& q, const baseData& bd);
-    void opInclude (queryData& q, const baseData& bd);
-    void opExclude (queryData& q, const baseData& bd);
-    void opTitle (queryData& q, const baseData& bd);
-    void opFileType (queryData& q, const baseData& bd);
-    void opPrize (queryData& q, const baseData& bd);
-    void opHashtag (queryData& q, const baseData& bd);
-    void opExactMatch (queryData& q, const baseData& bd);
-    void opWildcard (queryData& q, const baseData& bd);
-    void opRange (queryData& q, const baseData& bd);
-    void opSynonym (queryData& q, const baseData& bd);
+    void opFilterByPos (queryData* q); // quyen
+    
+    void opAND (queryData* q, baseData* bd); // ?
+    void opOR (queryData* q, baseData* bd); // ?
+    void opInclude (queryData* q, baseData* bd); // an
+    void opExclude (queryData* q, baseData* bd); // an
+    void opTitle (queryData* q, baseData* bd); // quyen
+    void opFileType (queryData* q, baseData* bd); // quyen
+    void opWildcard (queryData* q, baseData* bd); // quyen
+    void opRange (queryData* q, baseData* bd); // an
+    void opSynonym (queryData* q, baseData* bd); // an
 }
 
 vector <baseNode> and (vector <baseNode> a, vector <baseNode> b)
