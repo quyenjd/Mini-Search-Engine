@@ -22,6 +22,7 @@ const vector <char> SEPARATORS = {' ', ',', ';', '.', '"', '\'', '\n', '\t', '\r
 const char RETURN_ENTITY = '\0';
 
 namespace fs = std::filesystem;
+using namespace std;
 
 class dictionary
 {
@@ -83,18 +84,20 @@ public:
 
 struct baseNode
 {
-    int fileInd, pos, line;
+    int fileInd, pos, line, len;
     bool isTitle;
-    baseNode(int _fileInd, int _pos, int _line, bool _isTitle = 0): 
+    baseNode(int _fileInd, int _pos, int _line, int _len = 0, bool _isTitle = 0): 
         fileInd(_fileInd), 
         pos(_pos),
         line(_line),
+        len(_len),
         isTitle(_isTitle) 
         {};
     baseNode(): 
         fileInd(0), 
         pos(0),
         line(0),
+        len(0),
         isTitle(0) 
         {};
         // Some other metadatas
@@ -115,6 +118,7 @@ struct TrieNode
             out.write((char*)&(TrieNode::data[i].fileInd), 4);
             out.write((char*)&(TrieNode::data[i].pos), 4);
             out.write((char*)&(TrieNode::data[i].line), 4);
+            out.write((char*)&(TrieNode::data[i].len), 4);
             out.write((char*)&(TrieNode::data[i].isTitle), sizeof(TrieNode::data[i].isTitle));
         }
         
@@ -138,11 +142,12 @@ struct TrieNode
         inp.read((char*)&size, 4);
         for (int i = 0; i < size; i++)
         {    
-            int fileInd, pos, line;
+            int fileInd, pos, line, len;
             bool isTitle;
             inp.read((char*)&fileInd, 4);
             inp.read((char*)&pos, 4);
             inp.read((char*)&line, 4);
+            inp.read((char*)&len, 4);
             inp.read((char*)&isTitle, sizeof(isTitle));
             TrieNode::data.push_back(baseNode(fileInd, pos, line, isTitle));
         }
@@ -233,7 +238,7 @@ struct baseData
             stringstream lines(content);
 
             //do the saving here
-            int ind = 0, pos, line = 0;
+            int ind = 0, pos, line = 0, len;
             string word, singleLine;
 
             while (!lines.eof())
@@ -242,7 +247,7 @@ struct baseData
             ind = 0;
             while (1)
             {
-                word = nextWord(singleLine, ind, pos);
+                word = nextWord(singleLine, ind, pos, len);
                 if (word.size() == 0)
                 break;
                 // cout << "[INFO] word = " << word << " at line " << line + 1 << " " << " position " << pos + 1 << "\n";
@@ -250,7 +255,7 @@ struct baseData
                 if (isNumber(word))
                     baseData::insertNumber(word, fileInd, pos, line);
                 else
-                    baseData::insert(word, fileInd, pos, line);
+                    baseData::insert(word, fileInd, pos, line, len);
             }
             line++;
             }
@@ -279,7 +284,7 @@ struct baseData
     }
     
     //Insert words to trie
-    void insert (string word, int fileInd, int pos, int line)
+    void insert (string word, int fileInd, int pos, int line, int len)
     {
         TrieNode *cur = baseData::root;
         for (int i = 0; i < word.size(); i++)
@@ -289,7 +294,7 @@ struct baseData
 
             cur = cur -> child[word[i]];
         }
-        cur -> data.push_back(baseNode(fileInd, pos, line));
+        cur -> data.push_back(baseNode(fileInd, pos, line, len));
     }
 
     // Save datasets to files
