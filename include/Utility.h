@@ -476,7 +476,10 @@ public:
 
     dirHandler (const std::string& directory)
     {
-        DIR = directory;
+        char full[MAX_PATH];
+        if (!GetFullPathName(directory.c_str(), MAX_PATH, full, nullptr))
+            throw std::runtime_error(std::string("'") + directory + "': Invalid directory");
+        DIR = full;
         prepare();
     }
 
