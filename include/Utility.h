@@ -33,6 +33,16 @@ inline void string_copy (const Pchar from, Pchar& to)
 
 //Utils for baseData
 
+string cap (string x)
+{
+    string res = "";
+    for (int i = 0; i < x.size(); i++)
+    {
+        res += (char)('a' <= x[i] && x[i] <= 'z' ? x[i] - 32 : x[i]);
+    }
+    return res;
+}
+
 string nextWord (string content, int &ind, int &pos, int &len)
 {
     if (ind == content.size())
@@ -47,6 +57,9 @@ string nextWord (string content, int &ind, int &pos, int &len)
     while (cur < content.size() && !isSeparator(content[cur])) cur++;
 
     res = content.substr(ind, cur - ind);
+    if (!isNumber(res))
+        res = cap(res);
+
     len - cur - ind;
     ind = cur;
     

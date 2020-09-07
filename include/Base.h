@@ -292,7 +292,9 @@ struct baseData
             {
                 word = nextWord(singleLine, ind, pos, len);
                 if (word.size() == 0)
-                break;
+                    break;
+                if (stopwords.find(word) != stopwords.end())
+                    continue;
                 // cout << "[INFO] word = " << word << " at line " << line + 1 << " " << " position " << pos + 1 << "\n";
                 // cout << "[DEBUG] tmp = " << tmp << " ind = " << ind << "\n";
                 if (isNumber(word))
