@@ -2,6 +2,7 @@
 #define SE_BASE_H
 
 #define conv(x) ((x >= 'A' && x >= 'Z') ? (x - 65) : ((x >= 'a' && x <= 'z') ? (x - 97) : (x >= '0' && x <= '9' ? (x - 48) : -1)))
+#define NOMINMAX
 
 #include "Query.h"
 #include "Utility.h"
@@ -12,8 +13,6 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <filesystem>
-#include <fstream>
 #include <sstream>
 #include <time.h>
 #include <iomanip>
@@ -25,8 +24,6 @@ const int QUERY_WORD_LIMIT = 10;
 const int MAX_DIFF_CHARS = 36; // 'A' to 'Z' and '0' to '9'
 const std::vector <char> SEPARATORS = {' ', ',', ';', '.', '"', '\'', '\n', '\t', '\r', '\0', '-'};
 const char RETURN_ENTITY = '\0';
-
-namespace fs = std::filesystem;
 
 class dictionary
 {
@@ -279,23 +276,21 @@ struct baseData
         double time, totalTime = 0;
 
         std::cout << "[INFO] Looking at path = " << path << "\n";
-        for(auto p : fs::directory_iterator(path.c_str()))
+        dirHandler dir = dirHandler(path);
+        std::vector <std::string> files = dir.files();
+        for(std::string f : files)
         {
-            if (!isTextFile(p.path().string()))
+            if (!isTextFile(f))
             continue;
             // cout << "[INFO] Reading file " << p.path() << "\n";
 
             time = clock();
 
-            baseData::fileNames.push_back(p.path().string());
+            baseData::fileNames.push_back(f);
 
-            inp.open(p.path());
-            if (!inp.is_open())
-            {
-                std::cout << "[ERROR] Can't open file, aborting...\n";
-                continue;
-            }
-            content.assign(std::istreambuf_iterator <char> (inp), std::istreambuf_iterator <char> ());
+            dir.next(f);
+
+            content = dir.readAll();
             std::stringstream lines(content);
 
             //do the saving here
@@ -323,7 +318,7 @@ struct baseData
                 line++;
             }
 
-            inp.close();
+            dir.back();
             fileInd++;
 
             time = (clock() - time) / CLOCKS_PER_SEC;
