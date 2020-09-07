@@ -4,10 +4,13 @@
 #define conv(x) ((x >= 'A' && x >= 'Z') ? (x - 65) : ((x >= 'a' && x <= 'z') ? (x - 97) : (x >= '0' && x <= '9' ? (x - 48) : -1)))
 
 #include "Query.h"
+#include "Utility.h"
 #include <unordered_map>
 #include <iostream>
+#include <algorithm>
 #include <cstring>
 #include <map>
+#include <set>
 #include <vector>
 #include <filesystem>
 #include <fstream>
@@ -16,13 +19,14 @@
 #include <iomanip>
 #include <math.h>
 
+const std::set<std::string> stopwords = {"A", "ABLE", "ABOUT", "ABOVE", "ABST", "ACCORDANCE", "ACCORDING", "ACCORDINGLY", "ACROSS", "ACT", "ACTUALLY", "ADDED", "ADJ", "AFFECTED", "AFFECTING", "AFFECTS", "AFTER", "AFTERWARDS", "AGAIN", "AGAINST", "AH", "ALL", "ALMOST", "ALONE", "ALONG", "ALREADY", "ALSO", "ALTHOUGH", "ALWAYS", "AM", "AMONG", "AMONGST", "AN", "AND", "ANNOUNCE", "ANOTHER", "ANY", "ANYBODY", "ANYHOW", "ANYMORE", "ANYONE", "ANYTHING", "ANYWAY", "ANYWAYS", "ANYWHERE", "APPARENTLY", "APPROXIMATELY", "ARE", "AREN", "ARENT", "ARISE", "AROUND", "AS", "ASIDE", "ASK", "ASKING", "AT", "AUTH", "AVAILABLE", "AWAY", "AWFULLY", "B", "BACK", "BE", "BECAME", "BECAUSE", "BECOME", "BECOMES", "BECOMING", "BEEN", "BEFORE", "BEFOREHAND", "BEGIN", "BEGINNING", "BEGINNINGS", "BEGINS", "BEHIND", "BEING", "BELIEVE", "BELOW", "BESIDE", "BESIDES", "BETWEEN", "BEYOND", "BIOL", "BOTH", "BRIEF", "BRIEFLY", "BUT", "BY", "C", "CA", "CAME", "CAN", "CANNOT", "CANT", "CAUSE", "CAUSES", "CERTAIN", "CERTAINLY", "CO", "COM", "COME", "COMES", "CONTAIN", "CONTAINING", "CONTAINS", "COULD", "COULDNT", "D", "DATE", "DID", "DIDNT", "DIFFERENT", "DO", "DOES", "DOESNT", "DOING", "DONE", "DONT", "DOWN", "DOWNWARDS", "DUE", "DURING", "E", "EACH", "ED", "EDU", "EFFECT", "EG", "EIGHT", "EIGHTY", "EITHER", "ELSE", "ELSEWHERE", "END", "ENDING", "ENOUGH", "ESPECIALLY", "ET", "ETC", "EVEN", "EVER", "EVERY", "EVERYBODY", "EVERYONE", "EVERYTHING", "EVERYWHERE", "EX", "EXCEPT", "F", "FAR", "FEW", "FF", "FIFTH", "FIRST", "FIVE", "FIX", "FOLLOWED", "FOLLOWING", "FOLLOWS", "FOR", "FORMER", "FORMERLY", "FORTH", "FOUND", "FOUR", "FROM", "FURTHER", "FURTHERMORE", "G", "GAVE", "GET", "GETS", "GETTING", "GIVE", "GIVEN", "GIVES", "GIVING", "GO", "GOES", "GONE", "GOT", "GOTTEN", "H", "HAD", "HAPPENS", "HARDLY", "HAS", "HASNT", "HAVE", "HAVENT", "HAVING", "HE", "HED", "HENCE", "HER", "HERE", "HEREAFTER", "HEREBY", "HEREIN", "HERES", "HEREUPON", "HERS", "HERSELF", "HES", "HI", "HID", "HIM", "HIMSELF", "HIS", "HITHER", "HOME", "HOW", "HOWBEIT", "HOWEVER", "HUNDRED", "I", "ID", "IE", "IF", "ILL", "IM", "IMMEDIATE", "IMMEDIATELY", "IMPORTANCE", "IMPORTANT", "IN", "INC", "INDEED", "INDEX", "INFORMATION", "INSTEAD", "INTO", "INVENTION", "INWARD", "IS", "ISNT", "IT", "ITD", "ITLL", "ITS", "ITSELF", "IVE", "J", "JUST", "K", "KEEP", "KEEPS", "KEPT", "KG", "KM", "KNOW", "KNOWN", "KNOWS", "L", "LARGELY", "LAST", "LATELY", "LATER", "LATTER", "LATTERLY", "LEAST", "LESS", "LEST", "LET", "LETS", "LIKE", "LIKED", "LIKELY", "LINE", "LITTLE", "LL", "LOOK", "LOOKING", "LOOKS", "LTD", "M", "MADE", "MAINLY", "MAKE", "MAKES", "MANY", "MAY", "MAYBE", "ME", "MEAN", "MEANS", "MEANTIME", "MEANWHILE", "MERELY", "MG", "MIGHT", "MILLION", "MISS", "ML", "MORE", "MOREOVER", "MOST", "MOSTLY", "MR", "MRS", "MUCH", "MUG", "MUST", "MY", "MYSELF", "N", "NA", "NAME", "NAMELY", "NAY", "ND", "NEAR", "NEARLY", "NECESSARILY", "NECESSARY", "NEED", "NEEDS", "NEITHER", "NEVER", "NEVERTHELESS", "NEW", "NEXT", "NINE", "NINETY", "NO", "NOBODY", "NON", "NONE", "NONETHELESS", "NOONE", "NOR", "NORMALLY", "NOS", "NOT", "NOTED", "NOTHING", "NOW", "NOWHERE", "O", "OBTAIN", "OBTAINED", "OBVIOUSLY", "OF", "OFF", "OFTEN", "OH", "OK", "OKAY", "OLD", "OMITTED", "ON", "ONCE", "ONE", "ONES", "ONLY", "ONTO", "OR", "ORD", "OTHER", "OTHERS", "OTHERWISE", "OUGHT", "OUR", "OURS", "OURSELVES", "OUT", "OUTSIDE", "OVER", "OVERALL", "OWING", "OWN", "P", "PAGE", "PAGES", "PART", "PARTICULAR", "PARTICULARLY", "PAST", "PER", "PERHAPS", "PLACED", "PLEASE", "PLUS", "POORLY", "POSSIBLE", "POSSIBLY", "POTENTIALLY", "PP", "PREDOMINANTLY", "PRESENT", "PREVIOUSLY", "PRIMARILY", "PROBABLY", "PROMPTLY", "PROUD", "PROVIDES", "PUT", "Q", "QUE", "QUICKLY", "QUITE", "QV", "R", "RAN", "RATHER", "RD", "RE", "READILY", "REALLY", "RECENT", "RECENTLY", "REF", "REFS", "REGARDING", "REGARDLESS", "REGARDS", "RELATED", "RELATIVELY", "RESEARCH", "RESPECTIVELY", "RESULTED", "RESULTING", "RESULTS", "RIGHT", "RUN", "S", "SAID", "SAME", "SAW", "SAY", "SAYING", "SAYS", "SEC", "SECTION", "SEE", "SEEING", "SEEM", "SEEMED", "SEEMING", "SEEMS", "SEEN", "SELF", "SELVES", "SENT", "SEVEN", "SEVERAL", "SHALL", "SHE", "SHED", "SHELL", "SHES", "SHOULD", "SHOULDNT", "SHOW", "SHOWED", "SHOWN", "SHOWNS", "SHOWS", "SIGNIFICANT", "SIGNIFICANTLY", "SIMILAR", "SIMILARLY", "SINCE", "SIX", "SLIGHTLY", "SO", "SOME", "SOMEBODY", "SOMEHOW", "SOMEONE", "SOMETHAN", "SOMETHING", "SOMETIME", "SOMETIMES", "SOMEWHAT", "SOMEWHERE", "SOON", "SORRY", "SPECIFICALLY", "SPECIFIED", "SPECIFY", "SPECIFYING", "STILL", "STOP", "STRONGLY", "SUB", "SUBSTANTIALLY", "SUCCESSFULLY", "SUCH", "SUFFICIENTLY", "SUGGEST", "SUP", "SURE", "T", "TAKE", "TAKEN", "TAKING", "TELL", "TENDS", "TH", "THAN", "THANK", "THANKS", "THANX", "THAT", "THATLL", "THATS", "THATVE", "THE", "THEIR", "THEIRS", "THEM", "THEMSELVES", "THEN", "THENCE", "THERE", "THEREAFTER", "THEREBY", "THERED", "THEREFORE", "THEREIN", "THERELL", "THEREOF", "THERERE", "THERES", "THERETO", "THEREUPON", "THEREVE", "THESE", "THEY", "THEYD", "THEYLL", "THEYRE", "THEYVE", "THINK", "THIS", "THOSE", "THOU", "THOUGH", "THOUGHH", "THOUSAND", "THROUG", "THROUGH", "THROUGHOUT", "THRU", "THUS", "TIL", "TIP", "TO", "TOGETHER", "TOO", "TOOK", "TOWARD", "TOWARDS", "TRIED", "TRIES", "TRULY", "TRY", "TRYING", "TS", "TWICE", "TWO", "U", "UN", "UNDER", "UNFORTUNATELY", "UNLESS", "UNLIKE", "UNLIKELY", "UNTIL", "UNTO", "UP", "UPON", "UPS", "US", "USE", "USED", "USEFUL", "USEFULLY", "USEFULNESS", "USES", "USING", "USUALLY", "V", "VALUE", "VARIOUS", "VE", "VERY", "VIA", "VIZ", "VOL", "VOLS", "VS", "W", "WANT", "WANTS", "WAS", "WASNT", "WAY", "WE", "WED", "WELCOME", "WELL", "WENT", "WERE", "WERENT", "WEVE", "WHAT", "WHATEVER", "WHATLL", "WHATS", "WHEN", "WHENCE", "WHENEVER", "WHERE", "WHEREAFTER", "WHEREAS", "WHEREBY", "WHEREIN", "WHERES", "WHEREUPON", "WHEREVER", "WHETHER", "WHICH", "WHILE", "WHIM", "WHITHER", "WHO", "WHOD", "WHOEVER", "WHOLE", "WHOLL", "WHOM", "WHOMEVER", "WHOS", "WHOSE", "WHY", "WIDELY", "WILLING", "WISH", "WITH", "WITHIN", "WITHOUT", "WONT", "WORDS", "WORLD", "WOULD", "WOULDNT", "WWW", "X", "Y", "YES", "YET", "YOU", "YOUD", "YOULL", "YOUR", "YOURE", "YOURS", "YOURSELF", "YOURSELVES", "YOUVE", "Z", "ZERO"};
+
 const int QUERY_WORD_LIMIT = 10;
 const int MAX_DIFF_CHARS = 36; // 'A' to 'Z' and '0' to '9'
 const std::vector <char> SEPARATORS = {' ', ',', ';', '.', '"', '\'', '\n', '\t', '\r', '\0', '-'};
 const char RETURN_ENTITY = '\0';
 
 namespace fs = std::filesystem;
-using namespace std;
 
 class dictionary
 {
@@ -67,24 +71,34 @@ struct baseNode
 {
     int fileInd, pos, line, len;
     bool isTitle;
-    baseNode(int _fileInd, int _pos, int _line, int _len = 0, bool _isTitle = 0): 
-        fileInd(_fileInd), 
+    baseNode(int _fileInd, int _pos, int _line, int _len = 0, bool _isTitle = 0):
+        fileInd(_fileInd),
         pos(_pos),
         line(_line),
         len(_len),
-        isTitle(_isTitle) 
+        isTitle(_isTitle)
         {};
     baseNode():
         fileInd(0),
         pos(0),
         line(0),
         len(0),
-        isTitle(0) 
+        isTitle(0)
         {};
         // Some other metadatas
 };
 
-void printResult (std::vector<baseNode> res)
+std::string cap (std::string x)
+{
+    std::string res = "";
+    for (int i = 0; i < x.size(); i++)
+    {
+        res += (char)('a' <= x[i] && x[i] <= 'z' ? x[i] - 32 : x[i]);
+    }
+    return res;
+}
+
+void printResult (std::vector <baseNode> res)
 {
     if (res.size() == 0)
     {
@@ -107,7 +121,7 @@ bool isSeparator (char ch)
 {
     for (int i = 0; i < SEPARATORS.size(); i++)
         if (ch == SEPARATORS[i])
-        return 1;
+            return 1;
     return 0;
 }
 
@@ -127,7 +141,7 @@ bool isNumber (std::string word)
     return 1;
 }
 
-std::string nextWord (std::string content, int &ind, int &pos)
+std::string nextWord (std::string content, int &ind, int &pos, int &len)
 {
     if (ind == content.size())
         return "";
@@ -141,6 +155,10 @@ std::string nextWord (std::string content, int &ind, int &pos)
     while (cur < content.size() && !isSeparator(content[cur])) cur++;
 
     res = content.substr(ind, cur - ind);
+    if (!isNumber(res))
+        res = cap(res);
+
+    len - cur - ind;
     ind = cur;
 
     return res;
@@ -184,7 +202,7 @@ struct TrieNode
         int size;
         inp.read((char*)&size, 4);
         for (int i = 0; i < size; i++)
-        {    
+        {
             int fileInd, pos, line, len;
             bool isTitle;
             inp.read((char*)&fileInd, 4);
@@ -282,27 +300,27 @@ struct baseData
 
             //do the saving here
             int ind = 0, pos, line = 0, len;
-            string word, singleLine;
+            std::string word, singleLine;
 
             while (!lines.eof())
             {
-            getline(lines, singleLine);
-            ind = 0;
-            while (1)
-            {
-                word = nextWord(singleLine, ind, pos, len);
-                if (word.size() == 0)
-                    break;
-                if (stopwords.find(word) != stopwords.end())
-                    continue;
-                // cout << "[INFO] word = " << word << " at line " << line + 1 << " " << " position " << pos + 1 << "\n";
-                // cout << "[DEBUG] tmp = " << tmp << " ind = " << ind << "\n";
-                if (isNumber(word))
-                    baseData::insertNumber(word, fileInd, pos, line);
-                else
-                    baseData::insert(word, fileInd, pos, line, len);
-            }
-            line++;
+                getline(lines, singleLine);
+                ind = 0;
+                while (1)
+                {
+                    word = nextWord(singleLine, ind, pos, len);
+                    if (word.size() == 0)
+                        break;
+                    if (stopwords.find(word) != stopwords.end())
+                        continue;
+                    // cout << "[INFO] word = " << word << " at line " << line + 1 << " " << " position " << pos + 1 << "\n";
+                    // cout << "[DEBUG] tmp = " << tmp << " ind = " << ind << "\n";
+                    if (isNumber(word))
+                        baseData::insertNumber(word, fileInd, pos, line);
+                    else
+                        baseData::insert(word, fileInd, pos, line, len);
+                }
+                line++;
             }
 
             inp.close();
@@ -329,7 +347,7 @@ struct baseData
     }
 
     //Insert words to trie
-    void insert (string word, int fileInd, int pos, int line, int len)
+    void insert (std::string word, int fileInd, int pos, int line, int len)
     {
         TrieNode *cur = baseData::root;
         for (int i = 0; i < word.size(); i++)

@@ -1,14 +1,19 @@
 #ifndef SE_OPERATIONS_H
 #define SE_OPERATIONS_H
 
+#define compPos(a, b) (a.fileInd < b.fileInd || (a.fileInd == b.fileInd && (a.line < b.line || (a.line == b.line && a.pos < b.pos))))
+
 #include "Query.h"
+#include <map>
 
 const int SEPARATION_THRESHOLD = 3;
 
 namespace Operations
 {
-    void opFilterByPos (queryData* q); // quyen
-    
+    // This function takes the information (positions, file indexes) of all the words
+    // in the query and score the results based on relativeness.
+    void opRankByPos (queryData* q); // quyen
+
     void opAND (queryData* q, baseData* bd); // ?
     void opOR (queryData* q, baseData* bd); // ?
     void opInclude (queryData* q, baseData* bd); // an
@@ -20,7 +25,7 @@ namespace Operations
     void opSynonym (queryData* q, baseData* bd); // an
 }
 
-vector <baseNode> and (vector <baseNode> a, vector <baseNode> b)
+vector<baseNode> vectorAnd (vector <baseNode> a, vector <baseNode> b)
 {
     int i = 0, j = 0;
     vector <baseNode> res;
@@ -57,12 +62,7 @@ vector <baseNode> and (vector <baseNode> a, vector <baseNode> b)
     return res;
 }
 
-bool compPos (baseNode a, baseNode b)
-{
-    return (a.fileInd < b.fileInd || (a.fileInd == b.fileInd && (a.line < b.line || (a.line == b.line && a.pos < b.pos))));
-}
-
-vector <baseNode> or (vector <baseNode> a, vector <baseNode> b)
+vector<baseNode> vectorOr (vector <baseNode> a, vector <baseNode> b)
 {
     // Just make a simple merging
     int i = 0, j = 0;
