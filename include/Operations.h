@@ -4,7 +4,6 @@
 #define compPos(a, b) (a.fileInd < b.fileInd || (a.fileInd == b.fileInd && (a.line < b.line || (a.line == b.line && a.pos < b.pos))))
 
 #include "Query.h"
-#include <map>
 
 const int SEPARATION_THRESHOLD = 3;
 
