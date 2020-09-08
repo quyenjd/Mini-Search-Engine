@@ -85,6 +85,18 @@ struct baseNode
         // Some other metadatas
 };
 
+bool operator < (baseNode a, baseNode b)
+{
+    if (a.fileInd != b.fileInd)
+        return a.fileInd < b.fileInd;
+    else if (a.pos != b.pos)
+        return a.pos < b.pos;
+    else if (a.line != b.line)
+        return a.line < b.line;
+    else if (a.len != b.len)
+        return a.len < b.len;
+}
+
 std::string cap (std::string x)
 {
     std::string res = "";
