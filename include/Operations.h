@@ -4,6 +4,7 @@
 #define compPos(a, b) (a.fileInd < b.fileInd || (a.fileInd == b.fileInd && (a.line < b.line || (a.line == b.line && a.pos < b.pos))))
 
 #include "Query.h"
+#include "header.h"
 
 const int SEPARATION_THRESHOLD = 3;
 
@@ -22,6 +23,22 @@ namespace Operations
     void opWildcard (queryData* q, baseData* bd); // quyen
     void opRange (queryData* q, baseData* bd); // an
     void opSynonym (queryData* q, baseData* bd); // an
+}
+
+void opInclude(queryData* q,baseData* bd){
+    vector <Data> index;
+    index=bd->search(q.words[0]);
+    for (int i=0;i<index.size();i++){
+        pdi[index[i].fileInd]++;
+    }
+}
+
+void opExclude(queryData* q,baseData* bd){
+    vector <Data> index;
+    index=bd->search(q.words[0]);
+    for (int i=0;i<index.size();i++){
+        pdi[index[i].fileInd]=0;
+    }
 }
 
 vector<baseNode> vectorAnd (vector <baseNode> a, vector <baseNode> b)
