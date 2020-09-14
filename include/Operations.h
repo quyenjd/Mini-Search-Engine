@@ -40,7 +40,7 @@ namespace Operations
             std::swap(F0, F1);
         }
 
-        // Normalization: consistency ratio
+        // Normalization: inconsistency ratio
         return (double)(F0[rowLength] - abs(rowLength - colLength)) / std::min(rowLength, colLength);
     }
 

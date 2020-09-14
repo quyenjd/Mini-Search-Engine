@@ -5,3 +5,6 @@
 !.gitignore
 !*.pdf
 !*.md
+!*.py
+!*.htm
+!*.csv
