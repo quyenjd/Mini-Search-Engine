@@ -24,7 +24,7 @@ private:
     bool _isWild, _isRange, _isIncluded, _isExcluded, _isSynonym;
 
 public:
-    std::map<int, std::vector<baseNode>> occurrences;
+    std::unordered_map<int, std::vector<baseNode> > occurrences;
 
     queryNode()
     {
@@ -53,8 +53,8 @@ public:
     {
         V1 = _V1;
         V2 = _V2;
-        _isRange = true;
-        _isWild = _isIncluded = _isExcluded = _isSynonym = false;
+        _isRange = _isIncluded = true;
+        _isWild = _isExcluded = _isSynonym = false;
     }
 
     multitype& fi()
@@ -120,7 +120,7 @@ public:
         if (_isRange)
             V2 = multitype();
         else
-            _isWild = _isIncluded = _isExcluded = _isSynonym = false;
+            _isIncluded = !(_isWild = _isExcluded = _isSynonym = false);
         _isRange ^= 1;
     }
 
@@ -217,7 +217,7 @@ public:
     std::vector<queryNode> words;
 
     // array of resulting files' IDs (after searching).
-    std::set<pdi> matchIDs;
+    std::map<int, double> matchIDs;
 
     queryData() {}
 

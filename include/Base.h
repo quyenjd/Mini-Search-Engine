@@ -85,25 +85,16 @@ struct baseNode
         // Some other metadatas
 };
 
-bool operator < (baseNode a, baseNode b)
+bool operator< (baseNode a, baseNode b)
 {
-    if (a.fileInd != b.fileInd)
-        return a.fileInd < b.fileInd;
-    else if (a.pos != b.pos)
-        return a.pos < b.pos;
-    else if (a.line != b.line)
-        return a.line < b.line;
-    else if (a.len != b.len)
-        return a.len < b.len;
+    return a.fileInd < b.fileInd || (a.fileInd == b.fileInd && (a.line < b.line || (a.line == b.line && (a.pos < b.pos || (a.pos == b.pos && a.len < b.len)))));
 }
 
 std::string cap (std::string x)
 {
     std::string res = "";
-    for (int i = 0; i < x.size(); i++)
-    {
+    for (size_t i = 0; i < x.size(); i++)
         res += (char)('a' <= x[i] && x[i] <= 'z' ? x[i] - 32 : x[i]);
-    }
     return res;
 }
 
@@ -116,7 +107,7 @@ void printResult (std::vector <baseNode> res)
     }
 
     std::cout << "[INFO] There are " << res.size() << " results of the query\n";
-    for (int i = 0; i < res.size(); i++)
+    for (size_t i = 0; i < res.size(); i++)
         std::cout << i + 1 << ". fileInd = " << res[i].fileInd << " at line " << res[i].line + 1 << " and position " << res[i].pos + 1 << "\n";
     std::cout << "[INFO] End of result\n";
 }
@@ -128,7 +119,7 @@ bool isTextFile (std::string name)
 
 bool isSeparator (char ch)
 {
-    for (int i = 0; i < SEPARATORS.size(); i++)
+    for (size_t i = 0; i < SEPARATORS.size(); i++)
         if (ch == SEPARATORS[i])
             return 1;
     return 0;
@@ -137,14 +128,14 @@ bool isSeparator (char ch)
 int strToNum (std::string num)
 {
     int res = 0;
-    for (int i = 0; i < num.size(); i++)
+    for (size_t i = 0; i < num.size(); i++)
         res = res * 10 + num[i] - '0';
     return res;
 }
 
 bool isNumber (std::string word)
 {
-    for (int i = (word[0] == '$'); i < word.size(); i++)
+    for (size_t i = (word[0] == '$'); i < word.size(); i++)
         if (word[i] < '0' || word[i] > '9')
             return 0;
     return 1;
@@ -152,22 +143,22 @@ bool isNumber (std::string word)
 
 std::string nextWord (std::string content, int &ind, int &pos, int &len)
 {
-    if (ind == content.size())
+    if (ind == (int)content.size())
         return "";
 
     std::string res;
     int cur;
 
     //Make sure that content[ind] is alphanum
-    while (ind < content.size() && isSeparator(content[ind])) ind++, pos++;
+    while (ind < (int)content.size() && isSeparator(content[ind])) ind++, pos++;
     pos = cur = ind;
-    while (cur < content.size() && !isSeparator(content[cur])) cur++;
+    while (cur < (int)content.size() && !isSeparator(content[cur])) cur++;
 
     res = content.substr(ind, cur - ind);
     if (!isNumber(res))
         res = cap(res);
 
-    len - cur - ind;
+    len = cur - ind;
     ind = cur;
 
     return res;
@@ -357,7 +348,7 @@ struct baseData
     void insert (std::string word, int fileInd, int pos, int line, int len)
     {
         TrieNode *cur = baseData::root;
-        for (int i = 0; i < word.size(); i++)
+        for (size_t i = 0; i < word.size(); i++)
         {
             if (cur -> child.find(word[i]) == cur -> child.end())
             cur -> child[word[i]] = new TrieNode;
@@ -471,7 +462,7 @@ struct baseData
     std::vector <baseNode> search (std::string query)
     {
         TrieNode *cur = baseData::root;
-        for (int i = 0; i < query.size(); i++)
+        for (size_t i = 0; i < query.size(); i++)
         {
             if (cur -> child.find(query[i]) == cur -> child.end())
             return std::vector <baseNode>();
