@@ -285,19 +285,34 @@ struct baseData
         {
             if (!isTextFile(f))
             continue;
-            // cout << "[INFO] Reading file " << p.path() << "\n";
 
             time = clock();
 
             baseData::fileNames.push_back(f);
 
+            // Push file name to trie
+            int ind = 0, pos, line = 0, len;
+            content = dir.fileName();
+
+            while (1)
+            {
+                word = nextWord(content, ind, pos, len);
+                if (word.size() == 0)
+                    break;
+                // cout << "[INFO] word = " << word << " at line " << line + 1 << " " << " position " << pos + 1 << "\n";
+                // cout << "[DEBUG] tmp = " << tmp << " ind = " << ind << "\n";
+                if (isNumber(word))
+                    baseData::insertNumber(word, baseNode(fileInd, pos, line, len, 1));
+                else
+                    baseData::insert(word, baseNode(fileInd, pos, line, len, 1));
+            }
+
             dir.next(f);
 
+            // Push content to trie
             content = dir.readAll();
+            line = 0;
             std::stringstream lines(content);
-
-            //do the saving here
-            int ind = 0, pos, line = 0, len;
             std::string word, singleLine;
 
             while (!lines.eof())
@@ -314,9 +329,9 @@ struct baseData
                     // cout << "[INFO] word = " << word << " at line " << line + 1 << " " << " position " << pos + 1 << "\n";
                     // cout << "[DEBUG] tmp = " << tmp << " ind = " << ind << "\n";
                     if (isNumber(word))
-                        baseData::insertNumber(word, fileInd, pos, line);
+                        baseData::insertNumber(word, baseNode(fileInd, pos, line));
                     else
-                        baseData::insert(word, fileInd, pos, line, len);
+                        baseData::insert(word, baseNode(fileInd, pos, line, len));
                 }
                 line++;
             }
@@ -333,7 +348,7 @@ struct baseData
     }
 
     // Insert numbers to vector
-    void insertNumber (std::string number, int fileInd, int pos, int line)
+    void insertNumber (std::string number, baseNode data)
     {
         int n;
         if (number[0] == '$')
@@ -341,11 +356,11 @@ struct baseData
         else
             n = strToNum(number);
 
-        baseData::numbers.push_back(std::pair <int, baseNode> (n, baseNode(fileInd, pos, line)));
+        baseData::numbers.push_back(std::pair <int, baseNode> (n, data));
     }
 
     //Insert words to trie
-    void insert (std::string word, int fileInd, int pos, int line, int len)
+    void insert (std::string word, baseNode DATABITS_16X)
     {
         TrieNode *cur = baseData::root;
         for (size_t i = 0; i < word.size(); i++)
@@ -355,7 +370,7 @@ struct baseData
 
             cur = cur -> child[word[i]];
         }
-        cur -> data.push_back(baseNode(fileInd, pos, line, len));
+        cur -> data.push_back(data);
     }
 
     // Save datasets to files

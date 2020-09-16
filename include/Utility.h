@@ -558,6 +558,12 @@ public:
 
         return *this;
     }
+
+    std::string fileName()
+    {
+        // Return file name only
+        return "SOME_STRING_HERE";
+    }
 };
 
 #endif // SE_UTILITY_H
