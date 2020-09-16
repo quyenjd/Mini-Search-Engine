@@ -474,9 +474,10 @@ struct baseData
     }
 
     // Search for words
-    std::vector <baseNode> search (std::string query)
+    std::vector <baseNode> search (std::string query, bool isTitle = 0)
     {
         TrieNode *cur = baseData::root;
+        std::vector <baseNode> res;
         for (size_t i = 0; i < query.size(); i++)
         {
             if (cur -> child.find(query[i]) == cur -> child.end())
@@ -484,7 +485,12 @@ struct baseData
             else
             cur = cur -> child[query[i]];
         }
-        return cur -> data;
+        for (size_t i = 0; i < cur -> data.size(); i++)
+        {
+            if (cur -> data[i].isTitle == isTitle)
+                res.push_back(cur -> data[i]);
+        }
+        return res;
     }
 
     // Search for numbers in the interval
