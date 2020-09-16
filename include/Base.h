@@ -360,7 +360,7 @@ struct baseData
     }
 
     //Insert words to trie
-    void insert (std::string word, baseNode DATABITS_16X)
+    void insert (std::string word, baseNode data)
     {
         TrieNode *cur = baseData::root;
         for (size_t i = 0; i < word.size(); i++)
