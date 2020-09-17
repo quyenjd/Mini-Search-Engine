@@ -248,7 +248,9 @@ struct baseData
 
             time = clock();
 
-            baseData::fileNames.push_back(f);
+            dir.next(f);
+
+            baseData::fileNames.push_back(dir.dir());
 
             // Push file name to trie
             int id = 0, ind = 0, pos, line = 0;
@@ -266,8 +268,6 @@ struct baseData
                     baseData::insert(word, baseNode(id, fileInd, pos, line, 1));
                 ++id;
             }
-
-            dir.next(f);
 
             // Push content to trie
             content = dir.readAll();
