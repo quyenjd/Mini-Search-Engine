@@ -8,6 +8,7 @@ using namespace std;
 int main()
 {
     baseData bd;
+    bd.loadFromFiles("data");
     bd.theLoadFromCSV();
 
     while (true)
@@ -52,6 +53,15 @@ int main()
 
                 cout << endl;
             }
+
+            cout << "    Occurs:  ---" << endl;
+            x.mapOccurrences(&bd);
+            for (auto it = x.occurrences.begin(); it != x.occurrences.end(); ++it)
+            {
+                cout << dirHandler(bd.fileNames[it->first]).fileName()
+                     << " (1st occur at line=" << it->second[0].line << " pos=" << it->second[0].pos << ")" << endl;
+            }
+            cout << "             ---" << endl;
         }
 
         cout << endl

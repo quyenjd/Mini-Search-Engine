@@ -465,7 +465,17 @@ private:
         {
             if ((std::string)ffd.cFileName == "." || (std::string)ffd.cFileName == "..")
                 continue;
-            _files.push_back((std::string)ffd.cFileName);
+
+            std::string filename = ffd.cFileName;
+            bool flag = true;
+            for (char x: filename)
+                if (x < 32 || x > 126)
+                {
+                    flag = false;
+                    break;
+                }
+            if (flag)
+                _files.push_back(filename);
         }
         while (FindNextFile(hFind, &ffd));
 
@@ -549,20 +559,30 @@ public:
         return _size;
     }
 
+    // Set fillWhiteSpace=true will replace the false characters with white spaces
+    // (so as to keep the position of the words unchanged)
     std::string readAll (bool fillWhiteSpace = true) const
     {
         if (isDir)
             return "";
 
-        // I use wifstream in case the file is Unicode encoded
+        // I use wifstream for UTF-8 files
         std::wifstream wifs(DIR);
-        using convert_type = std::codecvt_utf8<wchar_t>;
-        std::wstring_convert<convert_type, wchar_t> converter;
-        std::string str = converter.to_bytes(std::wstring(std::istreambuf_iterator<wchar_t>(wifs), std::istreambuf_iterator<wchar_t>()));
-        if (fillWhiteSpace)
-            std::replace_if(str.begin(), str.end(), [](char x) { return x < 32 || x > 126; }, ' ');
-        else
-            str.erase(std::remove_if(str.begin(), str.end(), [](char x) { return x < 32 || x > 126; }), str.end());
+        wifs.imbue(std::locale(std::locale(), new std::codecvt_utf8<wchar_t>));
+        std::wstringstream wss;
+        wss << wifs.rdbuf();
+        std::wstring ws = wss.str();
+
+        std::string str;
+        for (wchar_t x: ws)
+            if (x < 32 || x > 126)
+            {
+                if (fillWhiteSpace)
+                    str.push_back(' ');
+            }
+            else
+                str.push_back((char)x);
+
         return str;
     }
 

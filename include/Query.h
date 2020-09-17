@@ -103,7 +103,7 @@ private:
         }
         for (size_t i = 0; i < occurs.size(); ++i)
             KMPQuery.push_back(i);
-        std::vector<int> KMP = KMPMatching(KMPData, KMPQuery);
+        std::vector<int> KMP = std::move(KMPMatching(KMPData, KMPQuery));
 
         // Push the rest into the resulting vector
         res.clear();
