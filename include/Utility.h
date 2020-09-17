@@ -6,8 +6,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <algorithm>
+#include <codecvt>
 #include <exception>
 #include <fstream>
+#include <locale>
 #include <streambuf>
 #include <string>
 #include <vector>
@@ -24,6 +27,10 @@
 #define Char char
 #define Pchar char*
 #define Double double
+
+#define upper(x) ((x >= 'a' && x <= 'z') ? char(x - 32) : x)
+
+typedef std::pair<int, int> pii;
 
 inline void string_copy (const Pchar from, Pchar& to)
 {
@@ -488,6 +495,18 @@ public:
         return DIR;
     }
 
+    std::string fileName() const
+    {
+        std::string fullDir = dir(), res;
+        for (size_t j = fullDir.length() - 1; j >= 0; --j)
+            if (fullDir[j] == '\\' || fullDir[j] == '/')
+                break;
+            else
+                res += fullDir[j];
+        std::reverse(res.begin(), res.end());
+        return res;
+    }
+
     std::vector<std::string> files() const
     {
         return _files;
@@ -508,8 +527,11 @@ public:
         if (isDir)
             return "";
 
-        std::ifstream ifs(DIR);
-        return std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
+        // I use wifstream in case the file is Unicode encoded
+        std::wifstream wifs(DIR);
+        using convert_type = std::codecvt_utf8<wchar_t>;
+        std::wstring_convert<convert_type, wchar_t> converter;
+        return converter.to_bytes(std::wstring(std::istreambuf_iterator<wchar_t>(wifs), std::istreambuf_iterator<wchar_t>()));
     }
 
     dirHandler& back()
@@ -557,12 +579,6 @@ public:
         }
 
         return *this;
-    }
-
-    std::string fileName()
-    {
-        // Return file name only
-        return "SOME_STRING_HERE";
     }
 };
 

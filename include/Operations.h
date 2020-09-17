@@ -4,10 +4,6 @@
 #include "Query.h"
 #include <algorithm>
 
-typedef std::pair<int, int> pii;
-
-const int SEPARATION_THRESHOLD = 3;
-
 namespace Operations
 {
     // Levenshtein distance for approximately comparing vectors.
@@ -60,8 +56,18 @@ namespace Operations
                 if (!q->words[i].isExcluded() && !q->words[i].isWild())
                     for (size_t j = 0; j < q->words[i].occurrences[fileId].size(); ++j)
                         occurs.push_back(std::make_pair(i, j));
-            std::sort(occurs.begin(), occurs.end(), [q, fileId](pii a, pii b)
-                      { return q->words[a.first].occurrences[fileId][a.second] < q->words[b.first].occurrences[fileId][b.second]; });
+            std::sort(occurs.begin(), occurs.end(), [q, fileId](pii a, pii b) {
+                          baseNode aa = q->words[a.first].occurrences[fileId][a.second],
+                                   bb = q->words[b.first].occurrences[fileId][b.second];
+                          return aa == bb ? (q->words[a.first] < q->words[b.first]) : (aa < bb);
+                      });
+
+            // If identical occurrences are detected, pick the one with highest priority and remove the rest
+            auto res = occurs.begin(), fi = occurs.begin();
+            while (++fi != occurs.end())
+                if (!(q->words[res->first].occurrences[fileId][res->second] == q->words[fi->first].occurrences[fileId][fi->second]))
+                    *(++res) = *fi;
+            occurs.resize(distance(occurs.begin(), ++res));
 
             // Prepare vector of words
             std::vector<int> levData, levQuery;
@@ -101,77 +107,23 @@ namespace Operations
                     q->matchIDs.erase(it->first);
     }
 
-    void opAND (queryData* q); // ?
-    void opOR (queryData* q); // ?
+    void opAND (queryData* q); // an
+    void opOR (queryData* q); // an
     void opTitle (queryData* q); // quyen
     void opFileType (queryData* q); // quyen
     void opSynonym (queryData* q); // an
 
-    void opWrapper (queryData* q, baseData* bd) // an
+    void opWrapper (queryData* q, baseData* bd)
     {
         // Prepare data for words in query
+        for (size_t i = 0; i < q->words.size(); ++i)
+            q->words[i].mapOccurrences(bd);
 
-        // Call operator functions once by once
+        /* ===== CALLING OPERATOR FUNCTIONS HERE!!! ===== */
 
         // Call ranking function to evaluate the documents
         opRanking(q);
     }
-}
-
-std::vector<baseNode> vectorAnd (std::vector <baseNode> a, std::vector <baseNode> b)
-{
-    size_t i = 0, j = 0;
-    std::vector <baseNode> res;
-    while (i < a.size() && j < b.size())
-    {
-        while (i < a.size() && j < b.size() && (a[i].fileInd != b[j].fileInd  || a[i].line != b[j].line))
-        {
-            if (a[i].fileInd < b[j].fileInd || (a[i].fileInd == b[j].fileInd && a[i].line < b[j].line))
-                i++;
-            else
-                j++;
-        }
-        if (a[i].pos < b[j].pos)
-        {
-            if (a[i].pos + a[i].len + SEPARATION_THRESHOLD >= b[j].pos)
-            {
-                // a[i] next to b[j]
-                res.push_back(baseNode(a[i].fileInd, a[i].pos, a[i].line, b[j].pos - a[i].pos + b[j].len, a[i].isTitle));
-                j++;
-            }
-            i++;
-        }
-        else
-        {
-            if (b[j].pos + b[j].len + SEPARATION_THRESHOLD >= a[i].pos)
-            {
-                // b[j] next to a[i]
-                res.push_back(baseNode(b[j].fileInd, b[j].pos, b[j].line, a[i].pos - b[j].pos + a[i].len, b[j].isTitle));
-                i++;
-            }
-            j++;
-        }
-    }
-    return res;
-}
-
-std::vector<baseNode> vectorOr (std::vector <baseNode> a, std::vector <baseNode> b)
-{
-    // Just make a simple merging
-    size_t i = 0, j = 0;
-    std::vector <baseNode> res;
-    while (i < a.size() && j < b.size())
-    {
-        if (a[i] < b[j])
-            res.push_back(a[i++]);
-        else
-            res.push_back(b[j++]);
-    }
-    while (i < a.size())
-        res.push_back(a[i++]);
-    while (j < b.size())
-        res.push_back(b[j++]);
-    return res;
 }
 
 #endif // SE_OPERATIONS_H

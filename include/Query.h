@@ -6,7 +6,6 @@
 #define operat(x) (x == '-' || x == '+' || x == '*' || x == '#' || x == '$' || x == '~' || x == '"')
 #define punc(x) (x == '\'')
 #define all(x) (normal(x) || operat(x) || punc(x))
-#define upper(x) ((x >= 'a' && x <= 'z') ? char(x - 32) : x)
 
 #include "Base.h"
 #include "Utility.h"
@@ -15,13 +14,124 @@
 #include <utility>
 #include <vector>
 
-typedef std::pair<double, int> pdi;
-
 class queryNode
 {
 private:
     multitype V1, V2;
     bool _isWild, _isRange, _isIncluded, _isExcluded, _isSynonym;
+
+    std::vector<int> KMPMatching (const std::vector<pii>& text, const std::vector<int>& pat)
+    {
+        int N = text.size(), M = pat.size();
+        std::vector<int> res;
+
+        if (!N)
+            return res;
+        if (!M)
+        {
+            for (int i = 0; i < N; ++i)
+                res.push_back(i);
+            return res;
+        }
+
+        // Compute the longest prefix suffix values
+        std::vector<int> lps(M);
+        int len = lps[0] = 0;
+        for (int i = 1; i < M; )
+            if (pat[i] == pat[len])
+                lps[i++] = ++len;
+            else
+            {
+                if (len)
+                    len = lps[len - 1];
+                else
+                    lps[i++] = 0;
+            }
+
+        // Find the pattern
+        for (int i = 0, j = 0; i < N; )
+        {
+            if (pat[j] == text[i].first)
+                ++i, ++j;
+            if (j == M)
+            {
+                res.push_back(i - j);
+                j = lps[j - 1];
+            }
+            else
+            if (i < N && pat[j] != text[i].first)
+            {
+                if (j)
+                    j = lps[j - 1];
+                else
+                    ++i;
+            }
+        }
+
+        return res;
+    }
+
+    // Combine the occurrences of the words inside a sequence into a list of occurrences of that sequence.
+    void combineOccurrences (std::vector<baseNode>& res, const std::vector<std::vector<baseNode> >& occurs)
+    {
+        // Prepare a full list of occurrences and sort it
+        std::vector<pii> occurPointers;
+        for (size_t i = 0; i < occurs.size(); ++i)
+            for (size_t j = 0; j < occurs[i].size(); ++j)
+                occurPointers.push_back(std::make_pair(i, j));
+        std::sort(occurPointers.begin(), occurPointers.end(), [occurs](pii a, pii b)
+                  { return occurs[a.first][a.second] < occurs[b.first][b.second]; });
+
+        // Make the list unique
+        auto it = std::unique(occurPointers.begin(), occurPointers.end());
+        occurPointers.resize(distance(occurPointers.begin(), it));
+
+        // Prepare data for KMP
+        std::vector<pii> KMPData;
+        std::vector<int> KMPQuery;
+        for (size_t i = 0; i < occurPointers.size(); ++i)
+        {
+            pii cur = occurPointers[i];
+            if (i)
+            {
+                pii prev = occurPointers[i - 1];
+                baseNode curID = occurs[cur.first][cur.second],
+                         prevID = occurs[prev.first][prev.second];
+                if (curID.fileInd != prevID.fileInd || curID.id - prevID.id > 1)
+                    KMPData.push_back(std::make_pair(-1, 0));
+            }
+            KMPData.push_back(cur);
+        }
+        for (size_t i = 0; i < occurs.size(); ++i)
+            KMPQuery.push_back(i);
+        std::vector<int> KMP = KMPMatching(KMPData, KMPQuery);
+
+        // Push the rest into the resulting vector
+        res.clear();
+        for (int x: KMP)
+            res.push_back(occurs[KMPData[x].first][KMPData[x].second]);
+    }
+
+    void searchWrapper (baseData *bd, std::string query)
+    {
+        // Normalize the query string
+        query.erase(std::remove_if(query.begin(), query.end(), [](char x){ return punc(x); }), query.end());
+        for (size_t i = 0; i < query.length(); ++i)
+            if (!normal(query[i]))
+                query[i] = ' ';
+
+        std::istringstream iss(query);
+        std::vector<baseNode> res;
+        std::vector<std::vector<baseNode> > occurs;
+
+        std::string word;
+        while (iss >> word)
+            occurs.push_back(std::move(bd->search(word)));
+        combineOccurrences(res, occurs);
+
+        for (size_t i = 0; i < res.size(); ++i)
+            occurrences[res[i].fileInd].push_back(res[i]);
+    }
 
 public:
     std::unordered_map<int, std::vector<baseNode> > occurrences;
@@ -161,11 +271,57 @@ public:
         _isSynonym ^= 1;
     }
 
-    // map occurrences with fileInd
-    void mapOccurrences (const std::vector<baseNode>& occurs)
+    // Priority comparison
+    bool operator< (const queryNode& q)
     {
-        for (size_t i = 0; i < occurs.size(); ++i)
-            occurrences[occurs[i].fileInd].push_back(occurs[i]);
+        if (isWild())
+            return !q.isWild();
+        if (isExcluded() ^ q.isExcluded())
+            return isExcluded();
+        if (isIncluded() ^ q.isIncluded())
+            return isIncluded();
+        return ((isRange() | isSynonym()) ^ (q.isRange() | q.isSynonym())) && !(isRange() | isSynonym());
+    }
+
+    // map occurrences with fileInd, given the original data.
+    void mapOccurrences (baseData *bd)
+    {
+        // if wildcard, no occurrences needed
+        if (isWild())
+            return;
+
+        // if excluded or no properties, just search for the word
+        if (isExcluded() || (!isIncluded() && !isSynonym() && !isRange()))
+        {
+            searchWrapper(bd, V1.to_str());
+            return;
+        }
+
+        // if range, just searchNumber instead
+        if (isRange())
+        {
+            std::string _V1(V1.to_str()), _V2(V2.to_str());
+            if (_V1[0] == '$')
+                _V1.erase(0, 1);
+            if (_V2[0] == '$')
+                _V2.erase(0, 1);
+
+            std::vector<baseNode> res = bd->searchNumber(multitype(_V1).to_int(), multitype(_V2).to_int());
+            for (size_t i = 0; i < res.size(); ++i)
+                occurrences[res[i].fileInd].push_back(res[i]);
+            return;
+        }
+
+        // if synonym, push also the occurrences of its synonym
+        if (isSynonym())
+        {
+            std::vector<int> syns = bd->theSearch(V1.to_str());
+            for (int x: syns)
+                searchWrapper(bd, bd->theWords[x]);
+        }
+
+        // if just included, simply call the wrapper
+        searchWrapper(bd, V1.to_str());
     }
 };
 
@@ -178,32 +334,49 @@ private:
     bool readNum (size_t& i, std::string& word, const std::string& str)
     {
         bool flag = true;
-        for (; i < str.length() && all(str[i]); ++i)
+        for (; i < str.length() && (normal(str[i]) || punc(str[i])); ++i)
         {
             if (!number(str[i]))
                 flag = false;
-            if ((!flag && normal(str[i])) || number(str[i]))
-                word += str[i];
+            word += str[i];
         }
+        word.erase(std::remove_if(word.begin(), word.end(), [](char x){ return punc(x); }), word.end());
+        for (; i < str.length() && all(str[i]) && !normal(str[i]); ++i)
+            flag = false;
         return flag;
     }
 
     void readStr (size_t& i, std::string& word, const std::string& str)
     {
-        for (; i < str.length() && all(str[i]); ++i)
-            if (normal(str[i]))
-                word += upper(str[i]);
+        for (; i < str.length() && (normal(str[i]) || punc(str[i])); ++i)
+            word += upper(str[i]);
+        word.erase(std::remove_if(word.begin(), word.end(), [](char x){ return punc(x); }), word.end());
+        for (; i < str.length() && all(str[i]) && !normal(str[i]); ++i);
     }
 
     bool readQuoted (size_t& i, std::string& word, const std::string& str)
     {
-        word = "\"";
         size_t tmp = ++i;
         for (; i < str.length(); ++i)
         {
             word += upper(str[i]);
             if (str[i] == '"')
             {
+                // Normalize the result word
+                for (size_t j = 0; j < word.length(); ++j)
+                    if (!normal(word[j]))
+                        word[j] = ' ';
+
+                std::istringstream iss(word);
+                std::string x;
+
+                word = '\"';
+                while (iss >> x)
+                    word += x + ' ';
+                if (!word.empty())
+                    word.pop_back();
+                word += '\"';
+
                 ++i;
                 return true;
             }

@@ -20,66 +20,31 @@
 
 const std::set<std::string> stopwords = {"A", "ABLE", "ABOUT", "ABOVE", "ABST", "ACCORDANCE", "ACCORDING", "ACCORDINGLY", "ACROSS", "ACT", "ACTUALLY", "ADDED", "ADJ", "AFFECTED", "AFFECTING", "AFFECTS", "AFTER", "AFTERWARDS", "AGAIN", "AGAINST", "AH", "ALL", "ALMOST", "ALONE", "ALONG", "ALREADY", "ALSO", "ALTHOUGH", "ALWAYS", "AM", "AMONG", "AMONGST", "AN", "AND", "ANNOUNCE", "ANOTHER", "ANY", "ANYBODY", "ANYHOW", "ANYMORE", "ANYONE", "ANYTHING", "ANYWAY", "ANYWAYS", "ANYWHERE", "APPARENTLY", "APPROXIMATELY", "ARE", "AREN", "ARENT", "ARISE", "AROUND", "AS", "ASIDE", "ASK", "ASKING", "AT", "AUTH", "AVAILABLE", "AWAY", "AWFULLY", "B", "BACK", "BE", "BECAME", "BECAUSE", "BECOME", "BECOMES", "BECOMING", "BEEN", "BEFORE", "BEFOREHAND", "BEGIN", "BEGINNING", "BEGINNINGS", "BEGINS", "BEHIND", "BEING", "BELIEVE", "BELOW", "BESIDE", "BESIDES", "BETWEEN", "BEYOND", "BIOL", "BOTH", "BRIEF", "BRIEFLY", "BUT", "BY", "C", "CA", "CAME", "CAN", "CANNOT", "CANT", "CAUSE", "CAUSES", "CERTAIN", "CERTAINLY", "CO", "COM", "COME", "COMES", "CONTAIN", "CONTAINING", "CONTAINS", "COULD", "COULDNT", "D", "DATE", "DID", "DIDNT", "DIFFERENT", "DO", "DOES", "DOESNT", "DOING", "DONE", "DONT", "DOWN", "DOWNWARDS", "DUE", "DURING", "E", "EACH", "ED", "EDU", "EFFECT", "EG", "EIGHT", "EIGHTY", "EITHER", "ELSE", "ELSEWHERE", "END", "ENDING", "ENOUGH", "ESPECIALLY", "ET", "ETC", "EVEN", "EVER", "EVERY", "EVERYBODY", "EVERYONE", "EVERYTHING", "EVERYWHERE", "EX", "EXCEPT", "F", "FAR", "FEW", "FF", "FIFTH", "FIRST", "FIVE", "FIX", "FOLLOWED", "FOLLOWING", "FOLLOWS", "FOR", "FORMER", "FORMERLY", "FORTH", "FOUND", "FOUR", "FROM", "FURTHER", "FURTHERMORE", "G", "GAVE", "GET", "GETS", "GETTING", "GIVE", "GIVEN", "GIVES", "GIVING", "GO", "GOES", "GONE", "GOT", "GOTTEN", "H", "HAD", "HAPPENS", "HARDLY", "HAS", "HASNT", "HAVE", "HAVENT", "HAVING", "HE", "HED", "HENCE", "HER", "HERE", "HEREAFTER", "HEREBY", "HEREIN", "HERES", "HEREUPON", "HERS", "HERSELF", "HES", "HI", "HID", "HIM", "HIMSELF", "HIS", "HITHER", "HOME", "HOW", "HOWBEIT", "HOWEVER", "HUNDRED", "I", "ID", "IE", "IF", "ILL", "IM", "IMMEDIATE", "IMMEDIATELY", "IMPORTANCE", "IMPORTANT", "IN", "INC", "INDEED", "INDEX", "INFORMATION", "INSTEAD", "INTO", "INVENTION", "INWARD", "IS", "ISNT", "IT", "ITD", "ITLL", "ITS", "ITSELF", "IVE", "J", "JUST", "K", "KEEP", "KEEPS", "KEPT", "KG", "KM", "KNOW", "KNOWN", "KNOWS", "L", "LARGELY", "LAST", "LATELY", "LATER", "LATTER", "LATTERLY", "LEAST", "LESS", "LEST", "LET", "LETS", "LIKE", "LIKED", "LIKELY", "LINE", "LITTLE", "LL", "LOOK", "LOOKING", "LOOKS", "LTD", "M", "MADE", "MAINLY", "MAKE", "MAKES", "MANY", "MAY", "MAYBE", "ME", "MEAN", "MEANS", "MEANTIME", "MEANWHILE", "MERELY", "MG", "MIGHT", "MILLION", "MISS", "ML", "MORE", "MOREOVER", "MOST", "MOSTLY", "MR", "MRS", "MUCH", "MUG", "MUST", "MY", "MYSELF", "N", "NA", "NAME", "NAMELY", "NAY", "ND", "NEAR", "NEARLY", "NECESSARILY", "NECESSARY", "NEED", "NEEDS", "NEITHER", "NEVER", "NEVERTHELESS", "NEW", "NEXT", "NINE", "NINETY", "NO", "NOBODY", "NON", "NONE", "NONETHELESS", "NOONE", "NOR", "NORMALLY", "NOS", "NOT", "NOTED", "NOTHING", "NOW", "NOWHERE", "O", "OBTAIN", "OBTAINED", "OBVIOUSLY", "OF", "OFF", "OFTEN", "OH", "OK", "OKAY", "OLD", "OMITTED", "ON", "ONCE", "ONE", "ONES", "ONLY", "ONTO", "OR", "ORD", "OTHER", "OTHERS", "OTHERWISE", "OUGHT", "OUR", "OURS", "OURSELVES", "OUT", "OUTSIDE", "OVER", "OVERALL", "OWING", "OWN", "P", "PAGE", "PAGES", "PART", "PARTICULAR", "PARTICULARLY", "PAST", "PER", "PERHAPS", "PLACED", "PLEASE", "PLUS", "POORLY", "POSSIBLE", "POSSIBLY", "POTENTIALLY", "PP", "PREDOMINANTLY", "PRESENT", "PREVIOUSLY", "PRIMARILY", "PROBABLY", "PROMPTLY", "PROUD", "PROVIDES", "PUT", "Q", "QUE", "QUICKLY", "QUITE", "QV", "R", "RAN", "RATHER", "RD", "RE", "READILY", "REALLY", "RECENT", "RECENTLY", "REF", "REFS", "REGARDING", "REGARDLESS", "REGARDS", "RELATED", "RELATIVELY", "RESEARCH", "RESPECTIVELY", "RESULTED", "RESULTING", "RESULTS", "RIGHT", "RUN", "S", "SAID", "SAME", "SAW", "SAY", "SAYING", "SAYS", "SEC", "SECTION", "SEE", "SEEING", "SEEM", "SEEMED", "SEEMING", "SEEMS", "SEEN", "SELF", "SELVES", "SENT", "SEVEN", "SEVERAL", "SHALL", "SHE", "SHED", "SHELL", "SHES", "SHOULD", "SHOULDNT", "SHOW", "SHOWED", "SHOWN", "SHOWNS", "SHOWS", "SIGNIFICANT", "SIGNIFICANTLY", "SIMILAR", "SIMILARLY", "SINCE", "SIX", "SLIGHTLY", "SO", "SOME", "SOMEBODY", "SOMEHOW", "SOMEONE", "SOMETHAN", "SOMETHING", "SOMETIME", "SOMETIMES", "SOMEWHAT", "SOMEWHERE", "SOON", "SORRY", "SPECIFICALLY", "SPECIFIED", "SPECIFY", "SPECIFYING", "STILL", "STOP", "STRONGLY", "SUB", "SUBSTANTIALLY", "SUCCESSFULLY", "SUCH", "SUFFICIENTLY", "SUGGEST", "SUP", "SURE", "T", "TAKE", "TAKEN", "TAKING", "TELL", "TENDS", "TH", "THAN", "THANK", "THANKS", "THANX", "THAT", "THATLL", "THATS", "THATVE", "THE", "THEIR", "THEIRS", "THEM", "THEMSELVES", "THEN", "THENCE", "THERE", "THEREAFTER", "THEREBY", "THERED", "THEREFORE", "THEREIN", "THERELL", "THEREOF", "THERERE", "THERES", "THERETO", "THEREUPON", "THEREVE", "THESE", "THEY", "THEYD", "THEYLL", "THEYRE", "THEYVE", "THINK", "THIS", "THOSE", "THOU", "THOUGH", "THOUGHH", "THOUSAND", "THROUG", "THROUGH", "THROUGHOUT", "THRU", "THUS", "TIL", "TIP", "TO", "TOGETHER", "TOO", "TOOK", "TOWARD", "TOWARDS", "TRIED", "TRIES", "TRULY", "TRY", "TRYING", "TS", "TWICE", "TWO", "U", "UN", "UNDER", "UNFORTUNATELY", "UNLESS", "UNLIKE", "UNLIKELY", "UNTIL", "UNTO", "UP", "UPON", "UPS", "US", "USE", "USED", "USEFUL", "USEFULLY", "USEFULNESS", "USES", "USING", "USUALLY", "V", "VALUE", "VARIOUS", "VE", "VERY", "VIA", "VIZ", "VOL", "VOLS", "VS", "W", "WANT", "WANTS", "WAS", "WASNT", "WAY", "WE", "WED", "WELCOME", "WELL", "WENT", "WERE", "WERENT", "WEVE", "WHAT", "WHATEVER", "WHATLL", "WHATS", "WHEN", "WHENCE", "WHENEVER", "WHERE", "WHEREAFTER", "WHEREAS", "WHEREBY", "WHEREIN", "WHERES", "WHEREUPON", "WHEREVER", "WHETHER", "WHICH", "WHILE", "WHIM", "WHITHER", "WHO", "WHOD", "WHOEVER", "WHOLE", "WHOLL", "WHOM", "WHOMEVER", "WHOS", "WHOSE", "WHY", "WIDELY", "WILLING", "WISH", "WITH", "WITHIN", "WITHOUT", "WONT", "WORDS", "WORLD", "WOULD", "WOULDNT", "WWW", "X", "Y", "YES", "YET", "YOU", "YOUD", "YOULL", "YOUR", "YOURE", "YOURS", "YOURSELF", "YOURSELVES", "YOUVE", "Z", "ZERO"};
 
-const int QUERY_WORD_LIMIT = 10;
-const int MAX_DIFF_CHARS = 36; // 'A' to 'Z' and '0' to '9'
-const std::vector <char> SEPARATORS = {' ', ',', ';', '.', '"', '\'', '\n', '\t', '\r', '\0', '-'};
+const std::vector <char> SEPARATORS = {' ', ',', ';', '.', '"', '\'', '\n', '\t', '\r', '\0', '-', '_'};
 const char RETURN_ENTITY = '\0';
 
-class dictionary
-{
-private:
-    // a hash table that stores all possible words.
-    std::unordered_map<std::string, int> dict;
-
-    // a list that stores distinct words for ease of access.
-    std::vector<std::string> words;
-
-    int idCnt;
-
-public:
-    dictionary()
-    {
-        idCnt = 0;
-    }
-
-    // add directly a string into dictionary (not recommended unless you understand).
-    void addWord (const std::string& word)
-    {
-        if (dict[word])
-            return;
-        dict[word] = ++idCnt;
-    }
-
-    // get hash id of a word.
-    int getIdByWord (const std::string& word) const
-    {
-        std::unordered_map<std::string, int>::const_iterator it = dict.find(word);
-        return it == dict.end() ? 0 : it->second;
-    }
-
-    // get word that has a hash id
-    std::string getWordById (int id) const
-    {
-        return  id >= 1 && id <= (int)words.size() ? words[id - 1] : "";
-    }
-};
+const std::string TrieBinaryDir = "trie.bin";
+const std::string NumberBinaryDir = "numbers.bin";
+const std::string FilenamesDir = "filenames";
+const std::string ThesaurusCSVDir = "thesaurus\\thesaurus.csv";
+const std::string ThesaurusDir = "thesaurus";
 
 struct baseNode
 {
-    int fileInd, pos, line, len;
+    int id, fileInd, pos, line;
     bool isTitle;
-    baseNode(int _fileInd, int _pos, int _line, int _len = 0, bool _isTitle = 0):
+    baseNode(int _id, int _fileInd, int _pos, int _line, bool _isTitle = 0):
+        id(_id),
         fileInd(_fileInd),
         pos(_pos),
         line(_line),
-        len(_len),
         isTitle(_isTitle)
         {};
     baseNode():
+        id(-1),
         fileInd(0),
         pos(0),
         line(0),
-        len(0),
         isTitle(0)
         {};
         // Some other metadatas
@@ -87,7 +52,12 @@ struct baseNode
 
 bool operator< (baseNode a, baseNode b)
 {
-    return a.fileInd < b.fileInd || (a.fileInd == b.fileInd && (a.line < b.line || (a.line == b.line && (a.pos < b.pos || (a.pos == b.pos && a.len < b.len)))));
+    return a.fileInd != b.fileInd ? (a.fileInd < b.fileInd) : (a.id < b.id);
+}
+
+bool operator== (baseNode a, baseNode b)
+{
+    return a.fileInd == b.fileInd && a.id == b.id;
 }
 
 std::string cap (std::string x)
@@ -141,7 +111,7 @@ bool isNumber (std::string word)
     return 1;
 }
 
-std::string nextWord (std::string content, int &ind, int &pos, int &len)
+std::string nextWord (std::string content, int &ind, int &pos)
 {
     if (ind == (int)content.size())
         return "";
@@ -158,16 +128,26 @@ std::string nextWord (std::string content, int &ind, int &pos, int &len)
     if (!isNumber(res))
         res = cap(res);
 
-    len = cur - ind;
     ind = cur;
 
     return res;
 }
 
+void explode (std::vector<std::string>& res, const std::string& s, char delim)
+{
+    std::istringstream iss(s);
+    std::string item;
+    res.clear();
+
+    while (std::getline(iss, item, delim))
+        res.push_back(std::move(item));
+}
+
+template<typename T>
 struct TrieNode
 {
-    std::map <char, TrieNode*> child;
-    std::vector <baseNode> data;
+    std::unordered_map <char, TrieNode*> child;
+    std::vector <T> data;
 
     void saveToFile (std::ofstream &out)
     {
@@ -175,13 +155,7 @@ struct TrieNode
         out.write((char*)&size, 4);
 
         for (int i = 0; i < size; i++)
-        {
-            out.write((char*)&(TrieNode::data[i].fileInd), 4);
-            out.write((char*)&(TrieNode::data[i].pos), 4);
-            out.write((char*)&(TrieNode::data[i].line), 4);
-            out.write((char*)&(TrieNode::data[i].len), 4);
-            out.write((char*)&(TrieNode::data[i].isTitle), sizeof(TrieNode::data[i].isTitle));
-        }
+            out.write((char*)&TrieNode::data[i], sizeof(T));
 
         char tmp;
 
@@ -203,25 +177,19 @@ struct TrieNode
         inp.read((char*)&size, 4);
         for (int i = 0; i < size; i++)
         {
-            int fileInd, pos, line, len;
-            bool isTitle;
-            inp.read((char*)&fileInd, 4);
-            inp.read((char*)&pos, 4);
-            inp.read((char*)&line, 4);
-            inp.read((char*)&len, 4);
-            inp.read((char*)&isTitle, sizeof(isTitle));
-            TrieNode::data.push_back(baseNode(fileInd, pos, line, isTitle));
+            T tmp;
+            inp.read((char*)&tmp, sizeof(T));
+            TrieNode::data.push_back(tmp);
         }
 
         char tmp;
         while (1)
         {
             inp.read(&tmp, 1);
-            // cout << "[DEBUG] Next edge " << tmp << " " << inp.tellg() << "\n";
             if (tmp == RETURN_ENTITY)
-            break;
+                break;
 
-            TrieNode::child[tmp] = new TrieNode;
+            TrieNode::child[tmp] = new TrieNode<T>;
             TrieNode::child[tmp] -> readFromFile(inp);
         }
     }
@@ -246,12 +214,6 @@ struct TrieNode
     }
 };
 
-struct Trie
-{
-    TrieNode *root;
-    Trie (): root(new TrieNode) {};
-};
-
 //The place where data stores
 //Create new session with new baseData()
 //Call loadFromFiles("path-to-files") to load raw files
@@ -262,13 +224,11 @@ struct Trie
 
 struct baseData
 {
-    std::vector<int> trie[QUERY_WORD_LIMIT][QUERY_WORD_LIMIT][MAX_DIFF_CHARS];
-    dictionary words, files;
-    TrieNode *root;
+    TrieNode<baseNode> *root;
     std::vector <std::pair <int, baseNode> > numbers;
     std::vector <std::string> fileNames;
 
-    baseData(): root(new TrieNode) {};
+    baseData(): root(new TrieNode<baseNode>) {};
 
     // Raw data to main dataset
     void loadFromFiles (std::string path)
@@ -284,56 +244,53 @@ struct baseData
         for(std::string f : files)
         {
             if (!isTextFile(f))
-            continue;
+                continue;
 
             time = clock();
 
             baseData::fileNames.push_back(f);
 
             // Push file name to trie
-            int ind = 0, pos, line = 0, len;
-            content = dir.fileName();
+            int id = 0, ind = 0, pos, line = 0;
+            std::string word, singleLine;
 
+            content = dir.fileName();
             while (1)
             {
-                word = nextWord(content, ind, pos, len);
+                word = nextWord(content, ind, pos);
                 if (word.size() == 0)
                     break;
-                // cout << "[INFO] word = " << word << " at line " << line + 1 << " " << " position " << pos + 1 << "\n";
-                // cout << "[DEBUG] tmp = " << tmp << " ind = " << ind << "\n";
                 if (isNumber(word))
-                    baseData::insertNumber(word, baseNode(fileInd, pos, line, len, 1));
+                    baseData::insertNumber(word, baseNode(id, fileInd, pos, line, 1));
                 else
-                    baseData::insert(word, baseNode(fileInd, pos, line, len, 1));
+                    baseData::insert(word, baseNode(id, fileInd, pos, line, 1));
+                ++id;
             }
 
             dir.next(f);
 
             // Push content to trie
             content = dir.readAll();
-            line = 0;
+            id = line = 0;
             std::stringstream lines(content);
-            std::string word, singleLine;
 
             while (!lines.eof())
             {
-                getline(lines, singleLine);
+                std::getline(lines, singleLine);
                 ind = 0;
                 while (1)
                 {
-                    word = nextWord(singleLine, ind, pos, len);
+                    word = nextWord(singleLine, ind, pos);
                     if (word.size() == 0)
                         break;
                     if (stopwords.find(word) != stopwords.end())
                         continue;
-                    // cout << "[INFO] word = " << word << " at line " << line + 1 << " " << " position " << pos + 1 << "\n";
-                    // cout << "[DEBUG] tmp = " << tmp << " ind = " << ind << "\n";
                     if (isNumber(word))
-                        baseData::insertNumber(word, baseNode(fileInd, pos, line));
+                        baseData::insertNumber(word, baseNode(id, fileInd, pos, line));
                     else
-                        baseData::insert(word, baseNode(fileInd, pos, line, len));
+                        baseData::insert(word, baseNode(id, fileInd, pos, line));
                 }
-                line++;
+                ++id, ++line;
             }
 
             dir.back();
@@ -344,7 +301,7 @@ struct baseData
             totalTime += time;
         }
         sort(baseData::numbers.begin(), baseData::numbers.end());
-        std::cout << "[INFO] Done in " << std::setprecision(3) << totalTime << "s\n";
+        std::cout << "[INFO] Importing done in " << std::fixed << std::setprecision(3) << totalTime << "s\n";
     }
 
     // Insert numbers to vector
@@ -362,12 +319,11 @@ struct baseData
     //Insert words to trie
     void insert (std::string word, baseNode data)
     {
-        TrieNode *cur = baseData::root;
+        TrieNode<baseNode> *cur = baseData::root;
         for (size_t i = 0; i < word.size(); i++)
         {
             if (cur -> child.find(word[i]) == cur -> child.end())
-            cur -> child[word[i]] = new TrieNode;
-
+                cur -> child[word[i]] = new TrieNode<baseNode>;
             cur = cur -> child[word[i]];
         }
         cur -> data.push_back(data);
@@ -386,25 +342,23 @@ struct baseData
         std::cout << "[INFO] Saving...\n";
         // Trie
         std::ofstream out;
-        out.open("tree.bin", std::ios::binary);
+        out.open(TrieBinaryDir, std::ios::binary);
         baseData::root -> saveToFile(out);
         out.close();
 
         // Numbers
-        out.open("numbers.bin", std::ios::binary);
+        out.open(NumberBinaryDir, std::ios::binary);
         int size = baseData::numbers.size();
         out.write((char*)&size, 4);
         for (int i = 0; i < size; i++)
         {
             out.write((char*)&(baseData::numbers[i].first), 4);
-            out.write((char*)&(baseData::numbers[i].second.fileInd), 4);
-            out.write((char*)&(baseData::numbers[i].second.pos), 4);
-            out.write((char*)&(baseData::numbers[i].second.line), 4);
+            out.write((char*)&(baseData::numbers[i].second), sizeof(baseNode));
         }
         out.close();
 
         // FileNames
-        out.open("filenames.txt");
+        out.open(FilenamesDir);
         out << baseData::fileNames.size();
         for (auto name : baseData::fileNames)
             out << name << "\n";
@@ -419,12 +373,12 @@ struct baseData
     {
         double time = clock();
         // Trie
-        std::cout << "[INFO] Reading...\n";
+        std::cout << "[INFO] Loading...\n";
         std::ifstream inp;
-        inp.open("tree.bin", std::ios::binary);
+        inp.open(TrieBinaryDir, std::ios::binary);
         if (!inp.is_open())
         {
-            std::cout << "[ERROR] tree.bin not found\n";
+            std::cout << "[ERROR] " << TrieBinaryDir << " not found\n";
             return;
         }
 
@@ -432,10 +386,10 @@ struct baseData
         inp.close();
 
         // Numbers
-        inp.open("numbers.bin", std::ios::binary);
+        inp.open(NumberBinaryDir, std::ios::binary);
         if (!inp.is_open())
         {
-            std::cout << "[ERROR] numbers.bin not found\n";
+            std::cout << "[ERROR] " << NumberBinaryDir << " not found\n";
             return;
         }
 
@@ -443,20 +397,19 @@ struct baseData
         inp.read((char*)&size, 4);
         for (int i = 0; i < size; i++)
         {
-            int num, fileInd, pos, line;
+            int num;
+            baseNode data;
             inp.read((char*)&(num), 4);
-            inp.read((char*)&(fileInd), 4);
-            inp.read((char*)&(pos), 4);
-            inp.read((char*)&(line), 4);
-            baseData::numbers.push_back(std::pair <int, baseNode> (num, baseNode(fileInd, pos, line)));
+            inp.read((char*)&(data), sizeof(baseNode));
+            baseData::numbers.push_back(std::pair <int, baseNode> (num, data));
         }
         inp.close();
 
         // Filenames
-        inp.open("filenames.txt");
+        inp.open(FilenamesDir);
         if (!inp.is_open())
         {
-            std::cout << "[ERROR] filenames.txt not found\n";
+            std::cout << "[ERROR] " << FilenamesDir << " not found\n";
             return;
         }
 
@@ -464,27 +417,31 @@ struct baseData
         inp >> size;
         for (int i = 0; i < size; i++)
         {
-            getline(std::cin, tmp);
+            std::getline(std::cin, tmp);
             baseData::fileNames.push_back(tmp);
         }
         inp.close();
 
         time = (clock() - time) / CLOCKS_PER_SEC;
-        std::cout << "[INFO] Successfully read in " << std::fixed << std::setprecision(4) << time << "s\n";
+        std::cout << "[INFO] Successfully loaded in " << std::fixed << std::setprecision(4) << time << "s\n";
     }
 
     // Search for words
-    std::vector <baseNode> search (std::string query, bool isTitle = 0)
+    std::vector <baseNode> search (std::string query, bool isTitle = false)
     {
-        TrieNode *cur = baseData::root;
-        std::vector <baseNode> res;
+        TrieNode<baseNode> *cur = baseData::root;
+
+        // Get data from trie
         for (size_t i = 0; i < query.size(); i++)
         {
             if (cur -> child.find(query[i]) == cur -> child.end())
-            return std::vector <baseNode>();
+                return std::vector <baseNode>();
             else
-            cur = cur -> child[query[i]];
+                cur = cur -> child[query[i]];
         }
+
+        // Filter by isTitle
+        std::vector<baseNode> res;
         for (size_t i = 0; i < cur -> data.size(); i++)
         {
             if (cur -> data[i].isTitle == isTitle)
@@ -538,9 +495,147 @@ struct baseData
         std::cout << "[INFO] Tree is successfully cleared\n";
     }
 
-    void buildDataToBinary (const std::string& binaryFileName);
-    void loadDataFromBinary (const std::string& binaryFileName);
-    /* MUST ADD MORE FUNCTIONS TO THIS STRUCT!!! */
+
+    /* --- Thesaurus --- */
+    std::vector<std::string> theWords;
+    std::map<int, std::vector<int> > theUnion;
+
+    void theLoadFromCSV()
+    {
+        theWords.clear();
+        theUnion.clear();
+
+        double time = clock();
+        std::istringstream iss(dirHandler(ThesaurusCSVDir).readAll());
+
+        std::vector<std::pair<std::string, std::string> > edges;
+
+        // Loop through lines (words) one by one
+        while (!iss.eof())
+        {
+            // Get the current line
+            std::string line;
+            std::getline(iss, line);
+
+            if (line.empty())
+                break;
+
+            // Put in a stringstream and get the word + its synonym list
+            std::istringstream issl(line);
+            std::string word, synonyms;
+            std::getline(issl, word, '\t');
+            std::getline(issl, synonyms);
+
+            // Normalization
+            for (size_t i = 0; i < word.length(); word[i] = upper(word[i]), ++i);
+            for (size_t i = 0; i < synonyms.length(); synonyms[i] = upper(synonyms[i]), ++i);
+
+            // Insert the synonyms
+            std::vector<std::string> synonymList;
+            explode(synonymList, synonyms, ',');
+
+            theWords.push_back(word);
+            for (std::string synonym: synonymList)
+            {
+                theWords.push_back(synonym);
+                edges.push_back(std::make_pair(word, synonym));
+            }
+        }
+
+        // Normalize the theWords vector
+        std::sort(theWords.begin(), theWords.end());
+        theWords.resize(distance(theWords.begin(), unique(theWords.begin(), theWords.end())));
+
+        // Construct the map
+        for (std::pair<std::string, std::string> t: edges)
+        {
+            int pos_f = distance(theWords.begin(), lower_bound(theWords.begin(), theWords.end(), t.first)),
+                pos_s = distance(theWords.begin(), lower_bound(theWords.begin(), theWords.end(), t.second));
+            theUnion[pos_f].push_back(pos_s);
+        }
+
+        time = (clock() - time) / CLOCKS_PER_SEC;
+        std::cout << "[INFO] Thesaurus importing done in " << std::fixed << std::setprecision(3) << time << "s\n";
+    }
+
+    void theReadText()
+    {
+        theWords.clear();
+        theUnion.clear();
+
+        double time = clock();
+        std::cout << "[INFO] Loading thesaurus...\n";
+
+        std::ifstream ifs;
+        ifs.open(ThesaurusDir);
+        if (!ifs.is_open())
+        {
+            std::cout << "[ERROR] " << ThesaurusDir << " not found\n";
+            return;
+        }
+
+        // First N1 lines are for words
+        int N; ifs >> N >> std::ws;
+        while (N--)
+        {
+            std::string line;
+            std::getline(ifs, line);
+            theWords.push_back(line);
+        }
+
+        // Next N2 lines are for synonym mapping
+        ifs >> N;
+        while (N--)
+        {
+            int x, y; ifs >> x >> y;
+            while (y--)
+            {
+                int z; ifs >> z;
+                theUnion[x].push_back(z);
+            }
+        }
+
+        ifs.close();
+        time = (clock() - time) / CLOCKS_PER_SEC;
+        std::cout << "[INFO] Successfully loaded thesaurus in " << std::fixed << std::setprecision(4) << time << "s\n";
+    }
+
+    void theWriteText()
+    {
+        double time = clock();
+        std::cout << "[INFO] Saving thesaurus...\n";
+
+        std::ofstream ofs;
+        ofs.open(ThesaurusDir);
+
+        // First N1 lines are for words
+        ofs << theWords.size() << " ";
+        for (std::string word: theWords)
+            ofs << word << std::endl;
+
+        // Next N2 lines are for synonym mapping
+        ofs << theUnion.size() << " ";
+        for (auto it = theUnion.begin(); it != theUnion.end(); ++it)
+            if (!it->second.empty())
+            {
+                ofs << it->first << " " << it->second.size() << " ";
+                for (int x: it->second)
+                    ofs << x << " ";
+            }
+        ofs << std::endl;
+
+        ofs.close();
+        time = (clock() - time) / CLOCKS_PER_SEC;
+        std::cout << "[INFO] Successfully saved thesaurus in " << std::fixed << std::setprecision(4) << time << "s\n";
+    }
+
+    std::vector<int> theSearch (const std::string& query)
+    {
+        auto it = std::lower_bound(theWords.begin(), theWords.end(), query);
+        if (it == theWords.end() || !(query == *it))
+            return std::vector<int>();
+        return theUnion[distance(theWords.begin(), it)];
+    }
 };
 
 #endif // SE_BASE_H

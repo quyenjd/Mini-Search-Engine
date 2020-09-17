@@ -1,13 +1,15 @@
 #include <iostream>
 #include "Query.h"
 #include "Base.h"
-
-#define yn(x) ((x) ? "[Y]" : "[N]")
+#include "Operations.h"
 
 using namespace std;
 
 int main()
 {
+    baseData bd;
+    bd.theLoadFromCSV();
+
     while (true)
     {
         system("cls");
@@ -20,18 +22,42 @@ int main()
         cout << endl
              << " [With stopwords]" << endl;
         for (auto x: q1.words)
+        {
             cout << " V1=" << x.fi().to_str() << "  V2=" << x.se().to_str() << endl
-                 << "    Prop:    (*)? " << yn(x.isWild()) << "  (A..B)? " << yn(x.isRange())
-                            << "  (+A)? " << yn(x.isIncluded()) << "  (-A)? " << yn(x.isExcluded())
-                            << "  (~A)? " << yn(x.isSynonym()) << endl;
+                 << "    Props:  ";
+
+            if (!x.isWild() && !x.isRange() && !x.isIncluded() && !x.isExcluded() && !x.isSynonym())
+                cout << "None";
+            else
+                cout << (x.isWild() ? "(*)  " : "") << (x.isRange() ? "(A..B)  " : "")
+                     << (x.isIncluded() ? "(+A)  " : "") << (x.isExcluded() ? "(-A)  " : "")
+                     << (x.isSynonym() ? "(~A)  " : "");
+
+            cout << endl;
+
+            if (x.isSynonym())
+            {
+                vector<int> lis = bd.theSearch(x.fi().to_str());
+                cout << "    Syns:   ";
+
+                if (lis.empty())
+                    cout << "None";
+                else
+                    for (size_t i = 0; i < lis.size(); ++i)
+                    {
+                        cout << bd.theWords[lis[i]];
+                        if (i != lis.size() - 1)
+                            cout << ",";
+                    }
+
+                cout << endl;
+            }
+        }
 
         cout << endl
              << " [Without stopwords]" << endl;
         for (auto x: q2.words)
-            cout << " V1=" << x.fi().to_str() << "  V2=" << x.se().to_str() << endl
-                 << "    Prop:    (*)? " << yn(x.isWild()) << "  (A..B)? " << yn(x.isRange())
-                            << "  (+A)? " << yn(x.isIncluded()) << "  (-A)? " << yn(x.isExcluded())
-                            << "  (~A)? " << yn(x.isSynonym()) << endl;
+            cout << " V1=" << x.fi().to_str() << "  V2=" << x.se().to_str() << endl;
 
         cout << endl;
         system("pause");
