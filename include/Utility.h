@@ -11,6 +11,7 @@
 #include <exception>
 #include <fstream>
 #include <locale>
+#include <sstream>
 #include <streambuf>
 #include <string>
 #include <vector>
@@ -507,6 +508,31 @@ public:
         return res;
     }
 
+    std::string fileExt() const
+    {
+        std::istringstream iss(fileName());
+        std::string last;
+        while (iss >> last);
+
+        std::string ext;
+        bool flag = false;
+        while (!last.empty())
+        {
+            if (last.back() == '.')
+            {
+                flag = true;
+                break;
+            }
+            ext.push_back(last.back());
+            last.pop_back();
+        }
+
+        if (!flag)
+            return "";
+        std::reverse(ext.begin(), ext.end());
+        return ext;
+    }
+
     std::vector<std::string> files() const
     {
         return _files;
@@ -522,7 +548,7 @@ public:
         return _size;
     }
 
-    std::string readAll() const
+    std::string readAll (bool fillWhiteSpace = true) const
     {
         if (isDir)
             return "";
@@ -531,7 +557,12 @@ public:
         std::wifstream wifs(DIR);
         using convert_type = std::codecvt_utf8<wchar_t>;
         std::wstring_convert<convert_type, wchar_t> converter;
-        return converter.to_bytes(std::wstring(std::istreambuf_iterator<wchar_t>(wifs), std::istreambuf_iterator<wchar_t>()));
+        std::string str = converter.to_bytes(std::wstring(std::istreambuf_iterator<wchar_t>(wifs), std::istreambuf_iterator<wchar_t>()));
+        if (fillWhiteSpace)
+            std::replace_if(str.begin(), str.end(), [](char x) { return x < 32 || x > 126; }, ' ');
+        else
+            str.erase(std::remove_if(str.begin(), str.end(), [](char x) { return x < 32 || x > 126; }), str.end());
+        return str;
     }
 
     dirHandler& back()
