@@ -14,6 +14,7 @@
 #include <sstream>
 #include <streambuf>
 #include <string>
+#include <utility>
 #include <vector>
 #include <windows.h>
 

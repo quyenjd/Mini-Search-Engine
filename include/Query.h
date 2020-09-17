@@ -11,7 +11,6 @@
 #include "Utility.h"
 #include <set>
 #include <string>
-#include <utility>
 #include <vector>
 
 class queryNode
@@ -126,7 +125,7 @@ private:
 
         std::string word;
         while (iss >> word)
-            occurs.push_back(std::move(bd->search(word)));
+            occurs.push_back(std::move(bd->search(word, inTitle)));
         combineOccurrences(res, occurs);
 
         for (size_t i = 0; i < res.size(); ++i)
@@ -135,6 +134,7 @@ private:
 
 public:
     std::unordered_map<int, std::vector<baseNode> > occurrences;
+    bool inTitle = false;
 
     queryNode()
     {
@@ -369,13 +369,11 @@ private:
 
                 std::istringstream iss(word);
                 std::string x;
-
-                word = '\"';
+                word.clear();
                 while (iss >> x)
                     word += x + ' ';
                 if (!word.empty())
                     word.pop_back();
-                word += '\"';
 
                 ++i;
                 return true;

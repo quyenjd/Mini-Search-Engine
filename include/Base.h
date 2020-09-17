@@ -58,7 +58,7 @@ bool operator< (baseNode a, baseNode b)
 
 bool operator== (baseNode a, baseNode b)
 {
-    return a.fileInd == b.fileInd && a.id == b.id;
+    return a.fileInd == b.fileInd && a.id == b.id && a.isTitle == b.isTitle;
 }
 
 std::string cap (std::string x)

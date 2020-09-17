@@ -3,6 +3,7 @@
 
 #include "Query.h"
 #include <algorithm>
+#include <stack>
 
 namespace Operations
 {
@@ -84,18 +85,14 @@ namespace Operations
 
     void opInclude (queryData* q)
     {
-        std::map<int, double> matchIDs;
         for (size_t i = 0; i < q->words.size(); ++i)
             if (q->words[i].isIncluded())
             {
-                for (auto it = q->words[i].occurrences.begin(); it != q->words[i].occurrences.end(); ++it)
-                {
-                    auto mit = q->matchIDs.find(it->first);
-                    if (mit != q->matchIDs.end())
-                        matchIDs[it->first] = mit->second;
-                }
-                q->matchIDs = matchIDs;
-                matchIDs.clear();
+                for (auto it = q->matchIDs.begin(); it != q->matchIDs.end(); )
+                    if (q->words[i].occurrences.find(it->first) == q->words[i].occurrences.end())
+                        it = q->matchIDs.erase(it);
+                    else
+                        ++it;
             }
     }
 
@@ -107,19 +104,90 @@ namespace Operations
                     q->matchIDs.erase(it->first);
     }
 
-    void opResultFilter (queryData* q); // an - operator& operator|
-    void opDataFilter (queryData* q); // quyen - operator intitle: filetype:
+    void opResultFilter (queryData* q, baseData* bd); // an - operator& operator|
+    void opDataFilter (queryData* q, baseData* bd) // quyen - operator intitle: filetype:
+    {
+        std::string str = q->query().to_str();
+        for (size_t i = 0; i < str.length(); ++i)
+            str[i] = upper(str[i]);
+
+        std::istringstream iss(str);
+        std::string formatted, word;
+        std::vector<std::string> intitles, filetypes;
+        while (iss >> word)
+        {
+            if (word.substr(0, 8) == "INTITLE:")
+                intitles.push_back(word.substr(8, word.length() - 8));
+            else
+            if (word.substr(0, 9) == "FILETYPE:")
+                filetypes.push_back(word.substr(9, word.length() - 9));
+            else
+                formatted += word + ' ';
+        }
+
+        // Get fileInd with specified filetypes
+        for (size_t i = 0; i < filetypes.size(); ++i)
+            filetypes[i].erase(std::remove_if(filetypes[i].begin(), filetypes[i].end(), [](char x){ return !normal(x); }), filetypes[i].end());
+        for (auto it = q->matchIDs.begin(); it != q->matchIDs.end(); ++it)
+        {
+            std::string extension = dirHandler(bd->fileNames[it->first]).fileExt();
+            for (size_t k = 0; k < extension.length(); ++k)
+                extension[k] = upper(extension[k]);
+
+            bool flag = false;
+            for (size_t i = 0; i < filetypes.size(); ++i)
+                if (extension == filetypes[i])
+                {
+                    flag = true;
+                    break;
+                }
+
+            if (!flag)
+                it = q->matchIDs.erase(it);
+            else
+                ++it;
+        }
+
+        // Get fileInd of which title contains words in 'intitles'
+        for (size_t i = 0; i < intitles.size(); ++i)
+        {
+            std::replace_if(intitles[i].begin(), intitles[i].end(), [](char x){ return !normal(x); }, ' ');
+            queryData qi(intitles[i]);
+            for (size_t j = 0; j < qi.words.size(); ++j)
+            {
+                qi.words[j].inTitle = true;
+                qi.words[j].mapOccurrences(bd);
+            }
+
+            for (auto it = q->matchIDs.begin(); it != q->matchIDs.end(); )
+            {
+                bool flag = false;
+                for (size_t j = 0; j < qi.words.size(); ++j)
+                    if (qi.words[j].occurrences.find(it->first) == qi.words[j].occurrences.end())
+                    {
+                        flag = true;
+                        break;
+                    }
+
+                if (flag)
+                    it = q->matchIDs.erase(it);
+                else
+                    ++it;
+            }
+        }
+
+        (*q) = std::move(queryData(formatted));
+    }
 
     void opWrapper (queryData* q, baseData* bd)
     {
-        // Prepare data for words in query
-        for (size_t i = 0; i < q->words.size(); ++i)
-            q->words[i].mapOccurrences(bd);
+        // Prepare resulting map
+        for (size_t i = 0; i < bd->fileNames.size(); ++i)
+            q->matchIDs[i] = 1;
 
         /* ===== CALLING OPERATOR FUNCTIONS HERE!!! ===== */
-
-        // Call ranking function to evaluate the documents
-        opRanking(q);
+        opDataFilter(q, bd);
+        opResultFilter(q, bd);
     }
 }
 
