@@ -107,11 +107,8 @@ namespace Operations
                     q->matchIDs.erase(it->first);
     }
 
-    void opAND (queryData* q); // an
-    void opOR (queryData* q); // an
-    void opTitle (queryData* q); // quyen
-    void opFileType (queryData* q); // quyen
-    void opSynonym (queryData* q); // an
+    void opResultFilter (queryData* q); // an - operator& operator|
+    void opDataFilter (queryData* q); // quyen - operator intitle: filetype:
 
     void opWrapper (queryData* q, baseData* bd)
     {
