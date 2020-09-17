@@ -6,7 +6,7 @@
 
 namespace Operations
 {
-    // Levenshtein distance for approximately comparing vectors.
+    // I use Wagner-Fischer for approximately comparing vectors.
     double LevenshteinDist (const std::vector<int>& row, const std::vector<int>& col)
     {
         int rowLength = row.size(), colLength = col.size(),
@@ -30,7 +30,7 @@ namespace Operations
             for (int i = 1; i <= rowLength; ++i)
             {
                 row_i = row[i - 1];
-                F1[i] = std::min(std::min(F0[i], F1[i - 1]) + 1, F0[i - 1] + (row_i != -1 && col_j != -1 && row_i != col_j));
+                F1[i] = std::min(std::min(F0[i], F1[i - 1]) + 1, F0[i - 1] + (row_i != -1 && col_j != -1 && row_i != col_j) * 2);
             }
 
             std::swap(F0, F1);
