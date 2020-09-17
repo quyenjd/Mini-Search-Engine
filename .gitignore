@@ -6,5 +6,5 @@
 !*.pdf
 !*.md
 !*.py
-!*.htm
+!*.jsonl
 !*.csv

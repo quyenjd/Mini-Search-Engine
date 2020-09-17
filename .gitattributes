@@ -1,1 +1,2 @@
-*.htm linguist-vendored
+*.csv linguist-vendored
+*.jsonl linguist-vendored
