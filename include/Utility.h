@@ -559,7 +559,7 @@ public:
         return _size;
     }
 
-    // Set fillWhiteSpace=true will replace the false characters with white spaces
+    // Set fillWhiteSpace=true will replace invalid characters with white spaces
     // (so as to keep the position of the words unchanged)
     std::string readAll (bool fillWhiteSpace = true) const
     {
