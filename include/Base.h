@@ -377,7 +377,7 @@ struct baseData
 
         // FileNames
         out.open(FilenamesDir);
-        out << baseData::fileNames.size();
+        out << baseData::fileNames.size() << "\n";
         for (auto name : baseData::fileNames)
             out << name << "\n";
         out.close();
@@ -432,7 +432,7 @@ struct baseData
         }
 
         std::string tmp;
-        inp >> size;
+        inp >> size; inp.ignore();
         for (int i = 0; i < size; i++)
         {
             std::getline(std::cin, tmp);
