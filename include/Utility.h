@@ -31,6 +31,11 @@
 #define Double double
 
 #define upper(x) ((x >= 'a' && x <= 'z') ? char(x - 32) : x)
+#define number(x) (x >= '0' && x <= '9')
+#define normal(x) ((x >= 'A' && x <= 'Z') || (x >= 'a' && x <= 'z') || number(x))
+#define operat(x) (x == '-' || x == '+' || x == '*' || x == '#' || x == '$' || x == '~' || x == '"')
+#define punc(x) (x == '\'')
+#define all(x) (normal(x) || operat(x) || punc(x))
 
 typedef std::pair<int, int> pii;
 

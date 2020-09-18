@@ -4,7 +4,6 @@
 #define conv(x) ((x >= 'A' && x >= 'Z') ? (x - 65) : ((x >= 'a' && x <= 'z') ? (x - 97) : (x >= '0' && x <= '9' ? (x - 48) : -1)))
 #define NOMINMAX
 
-#include "Query.h"
 #include "Utility.h"
 #include <unordered_map>
 #include <iostream>
