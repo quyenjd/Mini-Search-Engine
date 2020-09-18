@@ -151,7 +151,7 @@ namespace Operations
             if (op==2){ //OR operation
                 mapTemp=qqq.first->matchIDs;
                 for (auto it=mapTemp.begin();it!=mapTemp.end();it++){
-                    mapRes[it->first]=mapRes[it->first]+it->second;
+                    mapRes[it->first]=std::max(mapRes[it->first],it->second);
                 }
             }
         }
