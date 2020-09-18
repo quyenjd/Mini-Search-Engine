@@ -104,7 +104,58 @@ namespace Operations
                     q->matchIDs.erase(it->first);
     }
 
-    void opResultFilter (queryData* q, baseData* bd); // an - operator& operator|
+    void opResultFilter (queryData* q,baseData* bd){ // an - operator& operator|
+        int start_index=0;
+        int i=0;
+        int op=0; //1 is AND 2 is OR
+        for (int i=0;i<q.words.size();i++)
+            q.words[i].mapOccurrences(bd);
+        std::stack<std::pair<queryData*,int>> qD;
+        std::string qq=q->query().to_str();
+        while (i<=qq.length()){
+            while (qq[i]!='&'&&qq[i]!='|'){
+                i++;
+                if (i==qq.length()) break;
+            }
+            if (qq[i]=='&') op=1;
+            else op=2;
+            opExclude(qq.substr(start_index,i-1));
+            opInclude(qq.substr(start_index,i-1));
+            opRanking(qq.substr(start_index,i-1));
+            qD.push(std::move(qq.substr(start_index,i-1),op));
+            start_index=i+1;
+            op=0;
+        }
+        while (qD.size()>0){
+            std::pair<queryData*,int> qqq;
+            qqq=qD.top();
+            qD.pop();
+            op=qqq.second;
+            std::map<int,double> mapRes;
+            std::map<int,double> mapTemp;
+            if (op==0){ //no operation
+                mapRes=qqq.first->matchIDs;
+                /*for (auto it=mapRes.begin();it!=mapRes.end();){
+                    if (mapRes[it->first]==0)
+                        it=mapRes.erase(it->first);
+                    else it++;
+                }*/
+            }
+            if (op==1){ //ADD operation
+                mapTemp=qqq.first->matchIDs;
+                for (auto it=mapTemp.begin();it!=mapTemp.end();it++){
+                    mapRes[it->first]=std::min(it->second,mapRes[it->first]);
+                }
+            }
+            if (op==2){ //OR operation
+                mapTemp=qqq.first->matchIDs;
+                for (auto it=mapTemp.begin();it!=mapTemp.end();it++){
+                    mapRes[it->first]=mapRes[it->first]+it->second;
+                }
+            }
+        }
+    }
+
     void opDataFilter (queryData* q, baseData* bd) // quyen - operator intitle: filetype:
     {
         std::string str = q->query().to_str();
