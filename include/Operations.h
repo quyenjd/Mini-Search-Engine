@@ -108,8 +108,8 @@ namespace Operations
         int start_index=0;
         int i=0;
         int op=0; //1 is AND 2 is OR
-        for (int i=0;i<q.words.size();i++)
-            q.words[i].mapOccurrences(bd);
+        for (int i=0;i<q->words.size();i++)
+            q->words[i].mapOccurrences(bd);
         std::stack<std::pair<queryData*,int>> qD;
         std::string qq=q->query().to_str();
         while (i<=qq.length()){
@@ -119,10 +119,11 @@ namespace Operations
             }
             if (qq[i]=='&') op=1;
             else op=2;
-            opExclude(qq.substr(start_index,i-1));
-            opInclude(qq.substr(start_index,i-1));
-            opRanking(qq.substr(start_index,i-1));
-            qD.push(std::move(qq.substr(start_index,i-1),op));
+            queryData subq(qq.substr(start_index,i-1));
+            opExclude(&subq);
+            opInclude(&subq);
+            opRanking(&subq);
+            qD.push(std::make_pair(std::move(&subq),op));
             start_index=i+1;
             op=0;
         }
