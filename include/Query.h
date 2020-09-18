@@ -543,9 +543,21 @@ public:
         }
     }
 
+    // get original query string.
     multitype query() const
     {
         return _query;
+    }
+
+    // filter the map 'matchIDs' to vector by eliminating underthreshold ones.
+    std::vector<std::pair<int, double> > getResults (const double MATCHING_THRESHOLD = 10.0 /* in percentage */) const
+    {
+        std::vector<std::pair<int, double> > res;
+        for (auto it = matchIDs.begin(); it != matchIDs.end(); ++it)
+            if (it->second >= MATCHING_THRESHOLD)
+                res.push_back(*it);
+        std::sort(res.begin(), res.end(), [](std::pair<int, double> a, std::pair<int, double> b) { return a.second > b.second; });
+        return res;
     }
 };
 

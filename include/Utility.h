@@ -575,7 +575,7 @@ public:
 
         std::string str;
         for (wchar_t x: ws)
-            if (x < 32 || x > 126)
+            if (x < 32 || x > 126 && x != '\v' && x != '\t' && x != '\n' && x != '\r')
             {
                 if (fillWhiteSpace)
                     str.push_back(' ');
