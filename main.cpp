@@ -8,7 +8,7 @@ using namespace std;
 int main()
 {
     baseData bd;
-    bd.loadFromFiles("data");
+    bd.loadFromFiles("data" /* data source path */);
     bd.theLoadFromCSV();
 
     while (true)
@@ -18,13 +18,14 @@ int main()
         cout << "    Your query: ";
         std::string x; getline(cin, x);
 
-        queryData q1 = queryData(x), q2 = queryData(x, true);
+        queryData q1 = queryData(x, true);
 
         cout << endl
-             << " [With stopwords]" << endl;
+             << "-------------- TOKENS --------------" << endl
+             << endl;
         for (auto x: q1.words)
         {
-            cout << " V1=" << x.fi().to_str() << "  V2=" << x.se().to_str() << endl
+            cout << "  V1=" << x.fi().to_str() << "  V2=" << x.se().to_str() << endl
                  << "    Props:  ";
 
             if (!x.isWild() && !x.isRange() && !x.isIncluded() && !x.isExcluded() && !x.isSynonym())
@@ -53,23 +54,24 @@ int main()
 
                 cout << endl;
             }
-
-            cout << "    Occurs:  ---" << endl;
-            x.mapOccurrences(&bd);
-            for (auto it = x.occurrences.begin(); it != x.occurrences.end(); ++it)
-            {
-                cout << dirHandler(bd.fileNames[it->first]).fileName()
-                     << " (1st occur at line=" << it->second[0].line << " pos=" << it->second[0].pos << ")" << endl;
-            }
-            cout << "             ---" << endl;
         }
 
-        cout << endl
-             << " [Without stopwords]" << endl;
-        for (auto x: q2.words)
-            cout << " V1=" << x.fi().to_str() << "  V2=" << x.se().to_str() << endl;
+        Operations::opWrapper(&q1, &bd, false);
+        vector<pair<int, double> > scores = q1.getScores();
 
-        cout << endl;
+        cout << endl
+             << "---------- SEARCH RESULTS ----------" << endl
+             << endl
+             << "  Showing " << scores.size() << " result" << (scores.size() != 1 ? "s..." : "...") << endl
+             << endl;
+
+        for (auto x: q1.getScores())
+        {
+            cout << x.first << "\t" << dirHandler(bd.fileNames[x.first]).fileName() << " (" << x.second << ")" << endl;
+            for (baseNode y: q1.getHighlightsByFileId(x.first))
+                cout << "\t  line=" << y.line << " pos=" << y.pos << endl;
+        }
+
         system("pause");
     }
 

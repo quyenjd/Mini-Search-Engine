@@ -3,44 +3,101 @@
 
 #include "Query.h"
 #include <algorithm>
+#include <limits>
 #include <stack>
 
 namespace Operations
 {
-    // I use Wagner-Fischer for approximately comparing vectors.
-    double LevenshteinDist (const std::vector<int>& row, const std::vector<int>& col)
+    // I use Ratcliff/Obershelp for finding similiarity between two vectors.
+    struct RatcliffObershelp
     {
-        int rowLength = row.size(), colLength = col.size(),
-            row_i, col_j;
-
-        if (rowLength == 0)
-            return colLength;
-        if (colLength == 0)
-            return rowLength;
-
-        std::vector<int> F0(rowLength + 1), F1(rowLength + 1);
-
-        for (int i = 0; i <= rowLength; ++i)
-            F0[i] = i;
-
-        for (int j = 1; j <= colLength; ++j)
+    private:
+        int longestCommonSubarray (std::pair<int, int>& endp, int lA, int rA, int lB, int rB)
         {
-            F1[0] = j;
-            col_j = col[j - 1];
+            std::vector<std::vector<int> > lcs;
+            for (int i = 0; i <= rA; ++i)
+                lcs.push_back(std::move(std::vector<int>(rB + 1, 0)));
 
-            for (int i = 1; i <= rowLength; ++i)
-            {
-                row_i = row[i - 1];
-                F1[i] = std::min(std::min(F0[i], F1[i - 1]) + 1, F0[i - 1] + (row_i != -1 && col_j != -1 && row_i != col_j) * 2);
-            }
-
-            std::swap(F0, F1);
+            int res = 0;
+            endp.first = endp.second = -1;
+            for (int i = lA; i <= rA; ++i)
+                for (int j = lB; j <= rB; ++j)
+                    if (A[i] == B[j])
+                        if ((lcs[i][j] = (i && j ? lcs[i - 1][j - 1] : 0) + 1) > res)
+                        {
+                            res = lcs[i][j];
+                            endp.first = i;
+                            endp.second = j;
+                        }
+            return res;
         }
 
-        // Normalization: consistency ratio in percentage (%)
-        return (double)100.0 - (double)(F0[rowLength] - abs(rowLength - colLength)) * 100.0 / std::min(rowLength, colLength);
-    }
+        int recursiveCaller (int lA, int rA, int lB, int rB)
+        {
+            if (rA < lA || rB < lB)
+                return 0;
 
+            std::pair<int, int> endp;
+            int lcs = longestCommonSubarray(endp, lA, rA, lB, rB);
+            if (lcs > 0)
+            {
+                for (int i = endp.first - lcs + 1; i <= endp.first; ++i)
+                    savedAPos.push_back(i);
+
+                lcs += recursiveCaller(lA, endp.first - lcs, lB, endp.second - lcs) +
+                       recursiveCaller(endp.first + 1, rA, endp.second + 1, rB);
+            }
+            return lcs;
+        }
+
+        double _score;
+        std::vector<int> A, B, savedAPos;
+
+    public:
+        RatcliffObershelp (const std::vector<int>& _A, const std::vector<int>& _B)
+        {
+            savedAPos.clear();
+            A = _A; B = _B;
+
+            // If one of the vectors are empty, the score is certainly 0
+            if (A.empty() || B.empty())
+            {
+                _score = 0.0;
+                return;
+            }
+
+            // If the vectors are identical, the score is certainly 1
+            if (A.size() == B.size())
+            {
+                bool flag = true;
+                for (size_t i = 0; i < A.size(); ++i)
+                    if (A[i] != B[i])
+                    {
+                        flag = false;
+                        break;
+                    }
+                if (flag)
+                {
+                    for (size_t i = 0; i < A.size(); ++i)
+                        savedAPos.push_back(i);
+                    _score = 1.0;
+                    return;
+                }
+            }
+
+            _score = (double)2.0 * recursiveCaller(0, A.size() - 1, 0, B.size() - 1) / (A.size() + B.size());
+        }
+
+        double score() const
+        {
+            return _score;
+        }
+
+        std::vector<int> getLCSPositionsInA() const
+        {
+            return savedAPos;
+        }
+    };
 
     // This function takes the information (positions, file indexes) of all the words
     // in the query and score the results based on relativeness.
@@ -49,14 +106,20 @@ namespace Operations
         // Loop through all available fileIds
         for (auto it = q->matchIDs.begin(); it != q->matchIDs.end(); ++it)
         {
-            int fileId = it->first;
+            int fileId = it->first, numWords = 0;
 
             // Prepare and sort the occurrence list
             std::vector<pii> occurs;
             for (size_t i = 0; i < q->words.size(); ++i)
                 if (!q->words[i].isExcluded() && !q->words[i].isWild())
-                    for (size_t j = 0; j < q->words[i].occurrences[fileId].size(); ++j)
+                {
+                    auto it2 = q->words[i].occurrences.find(fileId);
+                    if (it2 == q->words[i].occurrences.end())
+                        continue;
+                    ++numWords;
+                    for (size_t j = 0; j < it2->second.size(); ++j)
                         occurs.push_back(std::make_pair(i, j));
+                }
             std::sort(occurs.begin(), occurs.end(), [q, fileId](pii a, pii b) {
                           baseNode aa = q->words[a.first].occurrences[fileId][a.second],
                                    bb = q->words[b.first].occurrences[fileId][b.second];
@@ -64,11 +127,14 @@ namespace Operations
                       });
 
             // If identical occurrences are detected, pick the one with highest priority and remove the rest
-            auto res = occurs.begin(), fi = occurs.begin();
-            while (++fi != occurs.end())
-                if (!(q->words[res->first].occurrences[fileId][res->second] == q->words[fi->first].occurrences[fileId][fi->second]))
-                    *(++res) = *fi;
-            occurs.resize(distance(occurs.begin(), ++res));
+            if (occurs.begin() != occurs.end())
+            {
+                auto res = occurs.begin(), fi = occurs.begin();
+                while (++fi != occurs.end())
+                    if (!(q->words[res->first].occurrences[fileId][res->second] == q->words[fi->first].occurrences[fileId][fi->second]))
+                        *(++res) = *fi;
+                occurs.resize(distance(occurs.begin(), ++res));
+            }
 
             // Prepare vector of words
             std::vector<int> levData, levQuery;
@@ -78,8 +144,13 @@ namespace Operations
                 if (!q->words[i].isExcluded())
                     levQuery.push_back(q->words[i].isWild() ? -1 : i);
 
-            // Calculate the score using Levenshtein distance
-            it->second = LevenshteinDist(levData, levQuery);
+            // Calculate the score using Ratcliff/Obershelp formula
+            RatcliffObershelp matcher(levData, levQuery);
+            it->second = matcher.score() + numWords;
+
+            // Insert data for highlighting
+            for (int x: matcher.getLCSPositionsInA())
+                q->highlights.push_back(q->words[occurs[x].first].occurrences[fileId][occurs[x].second]);
         }
     }
 
@@ -104,61 +175,66 @@ namespace Operations
                     q->matchIDs.erase(it->first);
     }
 
-    void opResultFilter (queryData* q,baseData* bd){ // an - operator& operator|
-        int start_index=0;
-        int i=0;
-        int op=0; //1 is AND 2 is OR
-        for (int i=0;i<q->words.size();i++)
-            q->words[i].mapOccurrences(bd);
-        std::stack<std::pair<queryData*,int>> qD;
+    void opResultFilter (queryData* q,baseData* bd, bool includeStopwords){ // an - operator& operator|
+        size_t start_index=0, i=0;
+        std::map<int,double> mapRes = std::move(q->matchIDs);
+        std::vector<baseNode> highlights;
+        std::stack<std::pair<queryData,int> > qD;
         std::string qq=q->query().to_str();
-        while (i<=qq.length()){
+        while (i<qq.length()){
             while (qq[i]!='&'&&qq[i]!='|'){
                 i++;
                 if (i==qq.length()) break;
             }
-            if (qq[i]=='&') op=1;
-            else op=2;
-            queryData subq(qq.substr(start_index,i-1));
+            queryData subq(qq.substr(start_index,i-start_index), !includeStopwords);
+            for (size_t i = 0; i < bd->fileNames.size(); ++i)
+                subq.matchIDs[i] = -0x7f800000;
+            for (size_t i=0;i<subq.words.size();i++)
+                subq.words[i].mapOccurrences(bd);
             opExclude(&subq);
             opInclude(&subq);
             opRanking(&subq);
-            qD.push(std::make_pair(std::move(&subq),op));
-            start_index=i+1;
-            op=0;
+            for (baseNode x: subq.highlights)
+                highlights.push_back(x);
+            qD.push(std::make_pair(std::move(subq),i == qq.length() ? 0 : (qq[i] == '&' ? 1 : 2)));
+            start_index=++i;
         }
-        while (qD.size()>0){
-            std::pair<queryData*,int> qqq;
-            qqq=qD.top();
+        while (!qD.empty()){
+            std::pair<queryData,int> qqq;
+            qqq=std::move(qD.top());
             qD.pop();
-            op=qqq.second;
-            std::map<int,double> mapRes;
-            std::map<int,double> mapTemp;
-            if (op==0){ //no operation
-                mapRes=qqq.first->matchIDs;
-                /*for (auto it=mapRes.begin();it!=mapRes.end();){
-                    if (mapRes[it->first]==0)
-                        it=mapRes.erase(it->first);
-                    else it++;
-                }*/
+            if (qqq.second==0){ //no operation
+                mapRes=std::move(qqq.first.matchIDs);
             }
-            if (op==1){ //ADD operation
-                mapTemp=qqq.first->matchIDs;
-                for (auto it=mapTemp.begin();it!=mapTemp.end();it++){
-                    mapRes[it->first]=std::min(it->second,mapRes[it->first]);
+            if (qqq.second==1){ //AND operation
+                for (auto it=mapRes.begin();it!=mapRes.end();it++){
+                    it->second=std::min(it->second,qqq.first.matchIDs[it->first]);
                 }
             }
-            if (op==2){ //OR operation
-                mapTemp=qqq.first->matchIDs;
-                for (auto it=mapTemp.begin();it!=mapTemp.end();it++){
+            if (qqq.second==2){ //OR operation
+                for (auto it=qqq.first.matchIDs.begin();it!=qqq.first.matchIDs.end();it++){
                     mapRes[it->first]=std::max(mapRes[it->first],it->second);
                 }
             }
         }
+        for (auto it=mapRes.begin();it!=mapRes.end();){
+            if (fabs(it->second)<std::numeric_limits<double>::epsilon())
+                it=mapRes.erase(it);
+            else it++;
+        }
+        highlights.resize(distance(highlights.begin(),
+                                   std::remove_if(highlights.begin(), highlights.end(),
+                                                  [mapRes](baseNode x){ return mapRes.find(x.fileInd) == mapRes.end(); })));
+        std::sort(highlights.begin(), highlights.end());
+        highlights.resize(distance(highlights.begin(), std::unique(highlights.begin(), highlights.end())));
+        q->highlights = std::move(highlights);
+        q->matchIDs = std::move(mapRes);
     }
 
     void opDataFilter (queryData* q, baseData* bd) // quyen - operator intitle: filetype:
     {
+        q->matchIDs.clear();
+
         std::string str = q->query().to_str();
         for (size_t i = 0; i < str.length(); ++i)
             str[i] = upper(str[i]);
@@ -169,36 +245,34 @@ namespace Operations
         while (iss >> word)
         {
             if (word.substr(0, 8) == "INTITLE:")
-                intitles.push_back(word.substr(8, word.length() - 8));
+                intitles.push_back(word.substr(8, std::string::npos));
             else
             if (word.substr(0, 9) == "FILETYPE:")
-                filetypes.push_back(word.substr(9, word.length() - 9));
+                filetypes.push_back(word.substr(9, std::string::npos));
             else
                 formatted += word + ' ';
         }
 
         // Get fileInd with specified filetypes
+        for (size_t i = 0; i < bd->fileNames.size(); ++i)
+            q->matchIDs[i] = filetypes.empty() ? 0.5 : 0.0;
         for (size_t i = 0; i < filetypes.size(); ++i)
             filetypes[i].erase(std::remove_if(filetypes[i].begin(), filetypes[i].end(), [](char x){ return !normal(x); }), filetypes[i].end());
-        for (auto it = q->matchIDs.begin(); it != q->matchIDs.end(); ++it)
-        {
-            std::string extension = dirHandler(bd->fileNames[it->first]).fileExt();
-            for (size_t k = 0; k < extension.length(); ++k)
-                extension[k] = upper(extension[k]);
+        for (size_t i = 0; i < filetypes.size(); ++i)
+            for (auto it = q->matchIDs.begin(); it != q->matchIDs.end(); ++it)
+            {
+                std::string extension = dirHandler(bd->fileNames[it->first]).fileExt();
+                for (size_t k = 0; k < extension.length(); ++k)
+                    extension[k] = upper(extension[k]);
 
-            bool flag = false;
-            for (size_t i = 0; i < filetypes.size(); ++i)
                 if (extension == filetypes[i])
-                {
-                    flag = true;
-                    break;
-                }
-
-            if (!flag)
+                    it->second = 0.5;
+            }
+        for (auto it = q->matchIDs.begin(); it != q->matchIDs.end(); )
+            if (fabs(it->second) < std::numeric_limits<double>::epsilon())
                 it = q->matchIDs.erase(it);
             else
                 ++it;
-        }
 
         // Get fileInd of which title contains words in 'intitles'
         for (size_t i = 0; i < intitles.size(); ++i)
@@ -228,18 +302,15 @@ namespace Operations
             }
         }
 
+        std::map<int, double> tmp = std::move(q->matchIDs);
         (*q) = std::move(queryData(formatted));
+        q->matchIDs = std::move(tmp);
     }
 
-    void opWrapper (queryData* q, baseData* bd)
+    void opWrapper (queryData* q, baseData* bd, bool includeStopwords)
     {
-        // Prepare resulting map
-        for (size_t i = 0; i < bd->fileNames.size(); ++i)
-            q->matchIDs[i] = 1;
-
-        /* ===== CALLING OPERATOR FUNCTIONS HERE!!! ===== */
         opDataFilter(q, bd);
-        opResultFilter(q, bd);
+        opResultFilter(q, bd, includeStopwords);
     }
 }
 

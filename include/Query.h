@@ -13,6 +13,14 @@
 #include <string>
 #include <vector>
 
+inline void preNormalize (std::string &str)
+{
+    str.erase(std::remove_if(str.begin(), str.end(), [](char x){ return punc(x); }), str.end());
+    for (size_t i = 0; i < str.length(); ++i)
+        if (!normal(str[i]))
+            str[i] = ' ';
+}
+
 class queryNode
 {
 private:
@@ -114,10 +122,7 @@ private:
     void searchWrapper (baseData *bd, std::string query)
     {
         // Normalize the query string
-        query.erase(std::remove_if(query.begin(), query.end(), [](char x){ return punc(x); }), query.end());
-        for (size_t i = 0; i < query.length(); ++i)
-            if (!normal(query[i]))
-                query[i] = ' ';
+        preNormalize(query);
 
         std::istringstream iss(query);
         std::vector<baseNode> res;
@@ -125,7 +130,10 @@ private:
 
         std::string word;
         while (iss >> word)
-            occurs.push_back(std::move(bd->search(word, inTitle)));
+            if (isNumber(word))
+                occurs.push_back(std::move(bd->searchNumber(multitype(word).to_int(), multitype(word).to_int(), inTitle)));
+            else
+                occurs.push_back(std::move(bd->search(word, inTitle)));
         combineOccurrences(res, occurs);
 
         for (size_t i = 0; i < res.size(); ++i)
@@ -286,6 +294,8 @@ public:
     // map occurrences with fileInd, given the original data.
     void mapOccurrences (baseData *bd)
     {
+        occurrences.clear();
+
         // if wildcard, no occurrences needed
         if (isWild())
             return;
@@ -363,9 +373,7 @@ private:
             if (str[i] == '"')
             {
                 // Normalize the result word
-                for (size_t j = 0; j < word.length(); ++j)
-                    if (!normal(word[j]))
-                        word[j] = ' ';
+                preNormalize(word);
 
                 std::istringstream iss(word);
                 std::string x;
@@ -387,8 +395,11 @@ public:
     // array of keywords in the query.
     std::vector<queryNode> words;
 
-    // array of resulting files' IDs (after searching).
+    // array of resulting file indexes (after searching).
     std::map<int, double> matchIDs;
+
+    // array of matching words by file index.
+    std::vector<baseNode> highlights;
 
     queryData() {}
 
@@ -550,13 +561,22 @@ public:
     }
 
     // filter the map 'matchIDs' to vector by eliminating underthreshold ones.
-    std::vector<std::pair<int, double> > getResults (const double MATCHING_THRESHOLD = 10.0 /* in percentage */) const
+    std::vector<std::pair<int, double> > getScores (const double MATCHING_THRESHOLD = 0.5) const
     {
         std::vector<std::pair<int, double> > res;
         for (auto it = matchIDs.begin(); it != matchIDs.end(); ++it)
-            if (it->second >= MATCHING_THRESHOLD)
+            if (it->second > MATCHING_THRESHOLD || fabs(it->second - MATCHING_THRESHOLD) < std::numeric_limits<double>::epsilon())
                 res.push_back(*it);
         std::sort(res.begin(), res.end(), [](std::pair<int, double> a, std::pair<int, double> b) { return a.second > b.second; });
+        return res;
+    }
+
+    std::vector<baseNode> getHighlightsByFileId (int fileId) const
+    {
+        std::vector<baseNode> res;
+        for (size_t i = 0; i < highlights.size(); ++i)
+            if (highlights[i].fileInd == fileId)
+                res.push_back(highlights[i]);
         return res;
     }
 };
