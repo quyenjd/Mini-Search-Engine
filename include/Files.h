@@ -47,9 +47,9 @@ public:
 	{
 		files.clear();
 	}
-	string shortenName(string name) 
+	string shortenName(string name)
 	{
-		if (name.length() <= lenFiles)
+		if ((int)name.length() <= lenFiles)
 			return name;
 		else
 			return name.substr(0, lenFiles - 3) + "...";
@@ -104,7 +104,7 @@ public:
 					showFiles(curFiles);
 					drawBoard(FILES_POSX - 5, FILES_POSY - 2, FILES_CNT * 2 + 6, FILES_LEN + 10, 12);
 				}
-					
+
 			}
 		}
 		return true;

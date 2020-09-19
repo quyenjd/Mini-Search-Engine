@@ -5,7 +5,6 @@
 #include <vector>
 #include "Base.h"
 
-
 string getName(string dir)
 {
 	int i = dir.rfind("\\") + 1, j = dir.length();
@@ -24,7 +23,7 @@ struct Line {
 	bool* check = nullptr;
 	void printLine()
 	{
-		for (int i = 0; i < str.length(); i++)
+		for (size_t i = 0; i < str.length(); i++)
 		{
 			if (check[i])
 				textColor(0, 12);
@@ -59,14 +58,14 @@ public:
 	}
 	void clear()
 	{
-		for (int i = 0; i < lines.size(); i++)
+		for (size_t i = 0; i < lines.size(); i++)
 			if (lines[i].check)
 				delete[] lines[i].check;
 		lines.clear();
 	}
 	bool isHL(int k, int curLine)
 	{
-		for (int i = 0; i < words.size(); i++)
+		for (size_t i = 0; i < words.size(); i++)
 			if (curLine == words[i].line && k == words[i].pos)
 				return true;
 		return false;
@@ -89,7 +88,7 @@ public:
 				line.check[k - i] = false;
 				k++;
 			}
-				
+
 		}
 	}
 	void modifyLine(int curLine, string line, bool isName)
@@ -128,7 +127,7 @@ public:
 		string str = dir.readAll();
 		string line = "";
 		int curLine = 0;
-		for (int i = 0; i < str.length(); i++)
+		for (size_t i = 0; i < str.length(); i++)
 			if (str[i] == '\n')
 			{
 				modifyLine(curLine++, line, false);
@@ -149,7 +148,7 @@ public:
 		}
 		int len = lines.size() - 1;
 		int startLine = curPage * cntLines, endLine = min(startLine + cntLines - 1, len);
-		for (int i = 0; i < name.size(); i++) {
+		for (size_t i = 0; i < name.size(); i++) {
 			goToXY(posX, posY + i); name[i].printLine();
 		}
 		for (int i = startLine; i <= endLine; i++) {
@@ -159,7 +158,7 @@ public:
 	}
 	void clearPage()
 	{
-		for (int i = posY; i < posY + cntLines + name.size() + 1; i++)
+		for (size_t i = posY; i < posY + cntLines + name.size() + 1; i++)
 		{
 			goToXY(posX, i);
 			for (int i = 0; i < lenLines; i++) cout << ' ';
@@ -172,7 +171,7 @@ public:
 		bool isArrow = false;
 		int keyValue;
 		while (true)
-		{ 
+		{
 			if (_kbhit())
 			{
 				keyValue = toupper(_getch());
