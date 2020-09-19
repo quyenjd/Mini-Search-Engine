@@ -4,7 +4,7 @@ This is our project of building a small document-search engine *entirely* in C++
 > Click [here](Requirements.pdf) for full list of project requirements.
 
 ## Build
-The program is built using TDM-GCC Compiler, GCC 5.1.0, MinGW Windows 32-bit edition. All codes are written in C++11.
+The program is built using TDM-GCC Compiler, GCC 5.1.0, MinGW Windows 32-bit edition. All codes are written in C++11. **Windows API** is required.
 
 ## Data preprocessing
 In order to make searching easily and efficient, we first build a collection out of given raw data.
@@ -27,7 +27,7 @@ To get the occurrences of a term, we first convert it into token.
 Then, fetch the occurrences of each token from data.
 - If include or exclude, occurrences of the token will be fetched
 - If range, occurrences of all the numbers in that range will be fetched
-- If synonym, occurrences of token and all of its equivalent ones will be fetched
+- If synonym, occurrences of the token and all of its equivalent ones will be fetched
 - If wild, dogs and cats will be fed
 
 Henceforth, operations are conducted based on the tokens' occurrence list.
@@ -48,9 +48,9 @@ In the manner of listing, here is a complete table of supported operators:
 | `*`          | Can be any word or nothing                                                                            | `dogs and *` will be equivalent to `dogs and dogs \| dogs and cats \| dogs and parks`              |
 
 ### Rankings
-- The occurrences of the tokens in files are encoded into lists of values `A_0, A_1, ..., A_k`
-- The occurrences of the tokens in the query are encoded into another list of values `B`
-- Apply [Ratcliff/Obershelp](https://en.wikipedia.org/wiki/Gestalt_Pattern_Matching) algorithm to calculate the similarity between each token list `A_i` and `B`
+- The occurrences of the querying tokens in all files are encoded into a list `A`
+- The order of the tokens in the query are encoded into another list `B`
+- Apply [Ratcliff/Obershelp](https://en.wikipedia.org/wiki/Gestalt_Pattern_Matching) algorithm to calculate the similarity between `A` and `B`
 - The final score of a file <img src="https://latex.codecogs.com/gif.latex?d" title="d" /> per query <img src="https://latex.codecogs.com/gif.latex?q" title="q" /> is calculated as <img src="https://latex.codecogs.com/gif.latex?score(q,&space;d)&space;=&space;wordCnt(q,&space;d)&space;&plus;&space;Gestalt(q,&space;d)" title="score(q, d) = wordCnt(q, d) + Gestalt(q, d)" />
 
 ## To-do list
@@ -60,7 +60,7 @@ In the manner of listing, here is a complete table of supported operators:
 
 ## Credits
 - Query processing & Searching: Quyen Dinh ([quyenjd](https://github.com/quyenjd)), An Pham ([iluvyw](https://github.com/iluvyw))
-- Data processing & API: Hai Le ([pythagore1123](https://github.com/pythagore1123))
+- Data processing: Hai Le ([pythagore1123](https://github.com/pythagore1123))
 - Interface: Linh Nguyen ([linhlrx](https://github.com/linhlrx))
 
 ## Mentors
