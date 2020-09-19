@@ -30,14 +30,8 @@ public:
 	int numFiles = -1, curFiles = 0;
 	FilesList(vector<pair<int, double>> listFile, baseData* data, queryData* query)
 	{
-		if (listFile.size() == 0)
-		{
-			cout << "Not found" << endl;
-			return;
-		}
+		if (listFile.size() == 0) return;
 		numFiles = listFile.size();
-		for (auto x : query->words)
-			x.mapOccurrences(data);
 		for (int i = 0; i < numFiles; i++)
 		{
 			File file;
@@ -45,7 +39,7 @@ public:
 			file.filename = getName(file.dir);
 			file.shortName = shortenName(file.filename);
 			file.score = listFile[i].second;
-			file.words = listWord(listFile[i].first, query, data);
+			file.words = query->getHighlightsByFileId(listFile[i].first); //listWord(listFile[i].first, query, data);
 			files.push_back(file);
 		}
 	}
@@ -62,15 +56,15 @@ public:
 	}
 	void printList(int num)
 	{
-		textColor(0, 12);
+		textColor(0, 13);
 		goToXY(posX + 11, posY); cout << "<<<LIST FILES>>>" << endl;
 		for (int i = 0; i < numFiles; i++)
 			if (i == num)
 			{
-				textColor(0, 13);
+				textColor(0, 12);
 				goToXY(posX - 1, posY + 2 + i * 2); cout << char(16) << files[i].shortName;
 				goToXY(posX + 1, posY + 3 + i * 2); cout << fixed << setprecision(2) << "Score: " << files[i].score;
-				textColor(0, 12);
+				textColor(0, 13);
 			}
 			else
 			{
@@ -105,7 +99,12 @@ public:
 					break;
 				}
 				if (keyValue == 13)
+				{
+					drawBoard(FILES_POSX - 5, FILES_POSY - 2, FILES_CNT * 2 + 6, FILES_LEN + 10, 13);
 					showFiles(curFiles);
+					drawBoard(FILES_POSX - 5, FILES_POSY - 2, FILES_CNT * 2 + 6, FILES_LEN + 10, 12);
+				}
+					
 			}
 		}
 		return true;
@@ -113,15 +112,17 @@ public:
 	void showFiles(int num)
 	{
 		Pages pages(files[num]);
-		drawBoard(PAGES_POSX - 5, PAGES_POSY - 2, PAGES_CNT + 4, PAGES_LEN + 10, 13);
+		drawBoard(PAGES_POSX - 5, PAGES_POSY - 2, PAGES_CNT + 4, PAGES_LEN + 10, 12);
 		pages.printPage(0);
 		while (true)
 		{
 			if (!pages.movePages())
 				break;
 		}
+		drawBoard(PAGES_POSX - 5, PAGES_POSY - 2, PAGES_CNT + 4, PAGES_LEN + 10, 13);
 		pages.clear();
 	}
 };
+
 #endif // !_FILES_H_
 

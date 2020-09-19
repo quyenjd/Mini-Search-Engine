@@ -5,10 +5,6 @@
 #include <vector>
 #include "Base.h"
 
-#define PAGES_POSX 70
-#define PAGES_POSY 8
-#define PAGES_CNT 30
-#define PAGES_LEN 60
 
 string getName(string dir)
 {
@@ -44,6 +40,7 @@ private:
 	int posX, posY;
 	int cntLines, lenLines;
 	int xL, xR, yLR;
+	vector<Line> name;
 	vector<Line> lines;
 	vector<baseNode> words;
 public:
@@ -53,6 +50,7 @@ public:
 		posX = PAGES_POSX; posY = PAGES_POSY;
 		cntLines = PAGES_CNT; lenLines = PAGES_LEN;
 		words = file.words;
+		modifyLine(-1, "<<<" + file.filename + ">>>", true); cntLines -= name.size() + 1;
 		readFile(file.dir);
 		numPages = (lines.size() - 1) / cntLines;
 		curPages = 0;
@@ -75,7 +73,7 @@ public:
 	}
 	void buildLine(Line& line, string str, int i, int j, int curLine)
 	{
-		line.str = str; 
+		line.str = str;
 		line.check = new bool[str.length()+5];
 		int k = i;
 		while (k <= j)
@@ -94,13 +92,16 @@ public:
 				
 		}
 	}
-	void modifyLine(int curLine, string line)
+	void modifyLine(int curLine, string line, bool isName)
 	{
 		if (line.length() == 0)
 		{
 			Line tmp;
 			tmp.str = "";
-			lines.push_back(tmp);
+			if (isName)
+				name.push_back(tmp);
+			else
+				lines.push_back(tmp);
 			return;
 		}
 		int j, len = line.length();
@@ -113,7 +114,10 @@ public:
 			if (j < i) j = min(i + lenLines - 1, len - 1);
 			Line tmp;
 			buildLine(tmp, line.substr(i, j - i + 1), i, j, curLine);
-			lines.push_back(tmp);
+			if (isName)
+				name.push_back(tmp);
+			else
+				lines.push_back(tmp);
 			i = j + 1;
 			cnt++;
 		}
@@ -122,20 +126,17 @@ public:
 	{
 		dirHandler dir(fileDir);
 		string str = dir.readAll();
-		//cout << fileDir << endl;
-		//cout << str;
-		//return;
 		string line = "";
 		int curLine = 0;
 		for (int i = 0; i < str.length(); i++)
 			if (str[i] == '\n')
 			{
-				modifyLine(curLine++, line);
+				modifyLine(curLine++, line, false);
 				line = "";
 			}
 			else
 				line = line + str[i];
-		if (line != "") modifyLine(curLine++, line);
+		if (line != "") modifyLine(curLine++, line, false);
 	}
 	void printPage(int curPage)
 	{
@@ -148,14 +149,17 @@ public:
 		}
 		int len = lines.size() - 1;
 		int startLine = curPage * cntLines, endLine = min(startLine + cntLines - 1, len);
-		for (int i = startLine; i <= endLine; i++) {
-			goToXY(posX, posY + i - startLine); lines[i].printLine();
+		for (int i = 0; i < name.size(); i++) {
+			goToXY(posX, posY + i); name[i].printLine();
 		}
-		goToXY(posX + lenLines - 5, posY + cntLines + 1); cout << curPage + 1 << "/" << numPages + 1;
+		for (int i = startLine; i <= endLine; i++) {
+			goToXY(posX, posY + name.size() + 1 + i - startLine); lines[i].printLine();
+		}
+		goToXY(posX + lenLines - 5, posY + cntLines + name.size() + 2); cout << curPage + 1 << "/" << numPages + 1;
 	}
 	void clearPage()
 	{
-		for (int i = posY; i < posY + cntLines; i++)
+		for (int i = posY; i < posY + cntLines + name.size() + 1; i++)
 		{
 			goToXY(posX, i);
 			for (int i = 0; i < lenLines; i++) cout << ' ';

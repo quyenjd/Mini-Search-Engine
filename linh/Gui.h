@@ -6,6 +6,20 @@
 #include <conio.h>
 using namespace std;
 
+#define FILES_POSX 10
+#define FILES_POSY 8
+#define FILES_CNT 10
+#define FILES_LEN 40
+#define PAGES_POSX 70
+#define PAGES_POSY 8
+#define PAGES_CNT 30
+#define PAGES_LEN 60
+#define OPTION_POSX 20
+#define OPTION_POSY 20
+#define OPTION_LEN 20
+#define NOTE_POSX 20
+#define NOTE_POSY 35
+
 void resizeConsole(int width, int height);
 void textColor(int background, int text);
 void goToXY(int x, int y);
@@ -76,6 +90,7 @@ void drawBoard(int x, int y, int height, int width, int color)
 }
 bool getQuery(std::string& str)
 {
+	textColor(0, 12);
 	int keyValue;
 	while (true)
 	{
@@ -84,12 +99,12 @@ bool getQuery(std::string& str)
 			keyValue = _getch();
 			if (keyValue == 27)
 				return false;
-			if (32 <= keyValue && keyValue <= 126)
+			if (32 <= keyValue && keyValue <= 126 && str.length()<=70)
 			{
 				cout << (char)keyValue;
 				str.push_back((char)keyValue);
 			}
-			if (keyValue == '\b')
+			if (keyValue == '\b' && str.length() > 0)
 			{
 				cout << "\b \b";
 				str.pop_back();
@@ -99,6 +114,44 @@ bool getQuery(std::string& str)
 		}
 	}
 	return true;
+}
+void printOptionList(int num, int posX, int posY)
+{
+	textColor(0, 12);
+	string option[5] = { "Load new", "Load existed", "Search", "Exit" };
+	goToXY(posX, posY); cout << "<<OPTION>>";
+	for (int i = 0; i < 4; i++)
+		if (i == num)
+		{
+			textColor(0, 13);
+			goToXY(posX - 1, posY + 2 + i * 2); cout << char(16) << option[i];
+			textColor(0, 12);
+		}
+		else
+		{
+			goToXY(posX - 1, posY + 2 + i * 2);	cout << char(32) << option[i];
+		}
+}
+void printHCMUS(int x, int y)
+{
+	textColor(0, 13);
+	goToXY(x, y);
+	cout << " oo      oo       oooooooo    oooo     oooo    oo      oo     oooooo"; y++; goToXY(x, y);
+	cout << " oo      oo      oo           oo oo   oo oo    oo      oo    oo     "; y++; goToXY(x, y);
+	cout << " oo      oo     oo            oo  oo oo  oo    oo      oo    oo     "; y++; goToXY(x, y);
+	cout << " oooooooooo    oo             oo   ooo   oo    oo      oo     ooooo "; y++; goToXY(x, y);
+	cout << " oo      oo     oo            oo         oo    oo      oo         oo"; y++; goToXY(x, y);
+	cout << " oo      oo      oo           oo         oo    oo      oo         oo"; y++; goToXY(x, y);
+	cout << " oo      oo       oooooooo    oo         oo    oooooooooo    oooooo "; y++; goToXY(x, y);
+	cout << "                                                                    "; y++; goToXY(x, y);
+	cout << "                          <<SEARCH ENGINE>>                         "; y++; goToXY(x, y);
+}
+void printNote(int x, int y)
+{
+	textColor(0, 4);
+	goToXY(x, y++); cout << "Use arrows to move";
+	goToXY(x, y++); cout<<"\"Esc\": return";
+	goToXY(x, y++); cout << "\"Enter\": choose";
 }
 
 #endif // !_GUI_H_

@@ -6,44 +6,149 @@
 
 #define yn(x) ((x) ? "[Y]" : "[N]")
 
-using namespace std;
+void option(int posX, int posY);
+bool search(baseData* data);
 
 int main()
 {
     resizeConsole(1200, 700);
     fixConsoleWindow();
-	baseData _data;
-	//_data.loadFromFiles("D://CS163//Final project//FinalProject//FinalProject//data");
-	//_data.saveToFile();
-	//_data.clear();
-	baseData data;
-	data.readFromFile();
-	while (true)
-	{
-		system("cls");
-		cout << "Your Query: ";
-		string str; if (!getQuery(str)) break;
-		system("cls");
-		goToXY(22, 3); cout << "YOUR QUERY: " << str << endl;
-		drawBoard(20, 2, 2, 100, 13);
-		queryData q1 = queryData(str);
-		vector<pair<int, double>> listFile;
-		//listFile = q1.getResults();
-		pair<int, double> tmp(0, 10);
-		listFile.push_back(tmp);
-		listFile.push_back(tmp);
+	HidePointer();
+	option(OPTION_POSX, OPTION_POSY);
+    return 0;
+}
 
-		FilesList filesList(listFile, &data, &q1);
-		drawBoard(FILES_POSX - 5, FILES_POSY - 2, FILES_CNT * 2 + 6, FILES_LEN + 10, 12);
+bool search(baseData* data)
+{
+	drawBoard(38, 23, 2, 95, 13);
+	goToXY(40, 24);  cout << "ENTER YOUR SEARCH: ";
+	ShowPointer();
+	string str; 
+	if (!getQuery(str))
+	{
 		HidePointer();
+		return false;
+	}
+	HidePointer();
+	system("cls");
+	printNote(NOTE_POSX, NOTE_POSY);
+	textColor(0, 13);
+	goToXY(22, 3); cout << "YOUR QUERY: " << str << endl;
+	drawBoard(20, 2, 2, 100, 13);
+	queryData q1 = queryData(str, true);
+	Operations::opWrapper(&q1, data, false);
+	vector<pair<int, double> > scores = q1.getScores();
+	vector<pair<int, double>> listFile;
+	listFile = q1.getScores();
+	
+	drawBoard(FILES_POSX - 5, FILES_POSY - 2, FILES_CNT * 2 + 6, FILES_LEN + 10, 12);
+	if (listFile.size() == 0)
+	{
+		textColor(0, 4);
+		int x = FILES_POSX, y = FILES_POSY + 2;
+		goToXY(x, y++); cout << "[INFO] No data found that match your query!";
+		goToXY(x, y++); cout << "[INFO] Please try again!";
+		goToXY(x, y);	system("pause");
+		return true;
+	}
+	else
+	{
+		FilesList filesList(listFile, data, &q1);
 		filesList.printList(0);
 		while (true)
 		{
 			if (!filesList.moveFiles())
-				break;
+				return true;
 		}
-		ShowPointer();
 	}
-	data.clear();
-    return 0;
+}
+void option(int posX, int posY)
+{
+	baseData data;
+	int cur = 0;
+	bool isArrow = false;
+	int keyValue;
+	system("cls");
+	printNote(NOTE_POSX, NOTE_POSY);
+	printHCMUS(40, 8);
+	printOptionList(cur, posX, posY);
+	drawBoard(OPTION_POSX - 5, OPTION_POSY - 2, 12, 20, 13);
+	while (true)
+	{
+		while (true)
+		{
+			if (_kbhit())
+			{
+				keyValue = toupper(_getch());
+				if (keyValue == 224)
+				{
+					isArrow = true;
+					continue;
+				}
+				if (isArrow)
+				{
+					isArrow = false;
+					if (keyValue == 72 && cur > 0)
+						printOptionList(--cur, posX, posY);
+					if (keyValue == 80 && cur < 3)
+						printOptionList(++cur, posX, posY);
+					break;
+				}
+				if (keyValue == 13)
+				{
+					if (cur == 0)
+					{
+						textColor(0, 4);
+						int x = 45, y = 22;
+						data.clear();
+						data.loadFromFiles("D://CS163//Final project//FinalProject//FinalProject//data", x, y);
+						data.saveToFile(x, y);
+						goToXY(x, y); system("pause");
+					}
+					if (cur == 1)
+					{
+						textColor(0, 4);
+						int x = 45, y = 22;
+						data.clear();
+						data.readFromFile(x, y);
+						goToXY(x, y); system("pause");
+					}
+					if (cur == 2)
+					{
+						bool ok = true;
+						if (data.isEmpty)
+						{
+							ok = false;
+							textColor(0, 4);
+							int x = 45, y = 22;
+							goToXY(x, y++); cout << "[ERROR] The data is empty, please try loading data!";
+							goToXY(x, y); system("pause");
+						}
+						while (ok)
+						{
+							if (!search(&data))
+								break;
+							system("cls");
+							printNote(NOTE_POSX, NOTE_POSY);
+							printHCMUS(40, 8);
+							printOptionList(cur, posX, posY);
+							drawBoard(OPTION_POSX - 5, OPTION_POSY - 2, 12, 20, 13);
+						}
+					}
+					if (cur == 3)
+					{
+						system("cls");
+						data.clear();
+						return;
+					}
+					system("cls");
+					printNote(NOTE_POSX, NOTE_POSY);
+					printHCMUS(40, 8);
+					printOptionList(cur, posX, posY);
+					drawBoard(OPTION_POSX - 5, OPTION_POSY - 2, 12, 20, 13);
+					break;
+				}
+			}
+		}
+	}
 }
