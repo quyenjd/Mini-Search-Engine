@@ -43,9 +43,9 @@ In the manner of listing, here is a complete table of supported operators:
 | `+A`         | The word must be included in the search results                                                       | `+dogs` will return the list of documents that contain *dogs*                                      |
 | `-A`         | The word must be excluded from the search results                                                     | `-dogs` will return the list of documents that do **not** contain *dogs*                           |
 | `~A`         | The word or its synonym must be included in the search results                                        | `~hello` will return the list of documents that contain *hello* or *hi*                            |
-| `A..B`       | <small>**Pre-requisite:** A and B must be numbers</small><br/>Any number in the range must be included in the search results | `2019..2021` will return the list of documents that contain *2019* or *2020* or *2021*             |
+| `A..B`       | **Pre-requisite:** A and B must be numbers<br/>Any number in the range must be included in the search results | `2019..2021` will return the list of documents that contain *2019* or *2020* or *2021*             |
 | `"A B"`      | The phrase must be included in the search results                                                     | `"dogs and cats"` will return the list of document that contain exactly the phrase *dogs and cats* |
-| `*`          | Can be any word or nothing                                                                            | You name it!                                                                                       |
+| `*`          | Can be any word or nothing                                                                            | `dogs and *` will be equivalent to `dogs and dogs \| dogs and cats \| dogs and parks`              |
 
 ### Rankings
 - The occurrences of the tokens in files are encoded into lists of values `A_0, A_1, ..., A_k`
@@ -55,7 +55,7 @@ In the manner of listing, here is a complete table of supported operators:
 
 ## To-do list
 - Search history (planned, not yet executed)
-- Target more filetypes (sadly, only `.txt` files are accepted at present)
+- Target more filetypes (unfortunately, only `.txt` files are accepted at present)
 - More and more...
 
 ## Credits
