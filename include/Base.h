@@ -31,21 +31,23 @@ const std::string ThesaurusDir = "thesaurus";
 
 struct baseNode
 {
-    int id, fileInd, pos, line;
+    int id, fileInd, pos, line, numWords;
     bool isTitle;
-    baseNode(int _id, int _fileInd, int _pos, int _line, bool _isTitle = 0) :
+    baseNode(int _id, int _fileInd, int _pos, int _line, bool _isTitle = 0, int _numWords = 1) :
         id(_id),
         fileInd(_fileInd),
         pos(_pos),
         line(_line),
-        isTitle(_isTitle)
+        isTitle(_isTitle),
+        numWords(_numWords)
     {};
     baseNode() :
         id(-1),
         fileInd(0),
         pos(0),
         line(0),
-        isTitle(0)
+        isTitle(0),
+        numWords(0)
     {};
     // Some other metadatas
 };

@@ -131,7 +131,10 @@ private:
         combineOccurrences(res, occurs);
 
         for (size_t i = 0; i < res.size(); ++i)
+        {
+            res[i].numWords = occurs.size();
             occurrences[res[i].fileInd].push_back(res[i]);
+        }
     }
 
 public:

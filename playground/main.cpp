@@ -8,7 +8,8 @@ using namespace std;
 int main()
 {
     baseData bd;
-    bd.loadFromFiles("data" /* data source path */);
+    int tx = 0, ty = 0;
+    bd.loadFromFiles("data" /* data source path */, tx, ty);
     bd.theLoadFromCSV();
 
     while (true)
@@ -69,7 +70,7 @@ int main()
         {
             cout << x.first << "\t" << dirHandler(bd.fileNames[x.first]).fileName() << " (" << x.second << ")" << endl;
             for (baseNode y: q1.getHighlightsByFileId(x.first))
-                cout << "\t  line=" << y.line << " pos=" << y.pos << endl;
+                cout << "\t  line=" << y.line << " pos=" << y.pos << " numWords=" << y.numWords << endl;
         }
 
         system("pause");
