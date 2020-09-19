@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-inline void preNormalize (std::string &str)
+inline void preNormalize (std::string& str)
 {
     str.erase(std::remove_if(str.begin(), str.end(), [](char x){ return punc(x); }), str.end());
     for (size_t i = 0; i < str.length(); ++i)

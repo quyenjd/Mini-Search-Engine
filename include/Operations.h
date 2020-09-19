@@ -6,6 +6,9 @@
 #include <limits>
 #include <stack>
 
+#define lD(x, y) (q->words[A[y].first].occurrences[fileId][A[y].second].line - q->words[A[x].first].occurrences[fileId][A[x].second].line)
+#define li(x, y) (q->words[A[y].first].occurrences[fileId][A[y].second].id - q->words[A[x].first].occurrences[fileId][A[x].second].id)
+
 namespace Operations
 {
     // I use Ratcliff/Obershelp for finding similiarity between two vectors.
@@ -18,16 +21,33 @@ namespace Operations
             for (int i = 0; i <= rA; ++i)
                 lcs.push_back(std::move(std::vector<int>(rB + 1, 0)));
 
-            int res = 0;
+            int res = 0, lineDelta = 0, idDelta = 0;
             endp.first = endp.second = -1;
             for (int i = lA; i <= rA; ++i)
                 for (int j = lB; j <= rB; ++j)
-                    if (A[i] == B[j])
-                        if ((lcs[i][j] = (i && j ? lcs[i - 1][j - 1] : 0) + 1) > res)
+                    if (A[i].first == B[j] || A[i].first == -1 || B[j] == -1)
+                        if ((lcs[i][j] = (i && j ? lcs[i - 1][j - 1] : 0) + 1) >= res)
                         {
-                            res = lcs[i][j];
-                            endp.first = i;
-                            endp.second = j;
+                            if (lcs[i][j] > res)
+                            {
+                                res = lcs[i][j];
+                                endp.first = i;
+                                endp.second = j;
+                                lineDelta = lD(i - res + 1, i);
+                                idDelta = li(i - res + 1, i);
+                            }
+                            else
+                            {
+                                int _ld = lD(i - res + 1, i),
+                                    _li = li(i - res + 1, i);
+                                if (_ld < lineDelta || (_ld == lineDelta && _li < idDelta))
+                                {
+                                    endp.first = i;
+                                    endp.second = j;
+                                    lineDelta = _ld;
+                                    idDelta = _li;
+                                }
+                            }
                         }
             return res;
         }
@@ -42,7 +62,7 @@ namespace Operations
             if (lcs > 0)
             {
                 for (int i = endp.first - lcs + 1; i <= endp.first; ++i)
-                    savedAPos.push_back(i);
+                    savedAPos.push_back(q->words[A[i].first].occurrences[fileId][A[i].second]);
 
                 lcs += recursiveCaller(lA, endp.first - lcs, lB, endp.second - lcs) +
                        recursiveCaller(endp.first + 1, rA, endp.second + 1, rB);
@@ -51,13 +71,18 @@ namespace Operations
         }
 
         double _score;
-        std::vector<int> A, B, savedAPos;
+
+        queryData *q;
+        int fileId;
+        std::vector<pii> A;
+        std::vector<int> B;
+        std::vector<baseNode> savedAPos;
 
     public:
-        RatcliffObershelp (const std::vector<int>& _A, const std::vector<int>& _B)
+        RatcliffObershelp (queryData* _q, int _fileId, const std::vector<pii>& _A, const std::vector<int>& _B)
         {
             savedAPos.clear();
-            A = _A; B = _B;
+            q = _q, fileId = _fileId, A = _A, B = _B;
 
             // If one of the vectors are empty, the score is certainly 0
             if (A.empty() || B.empty())
@@ -71,7 +96,7 @@ namespace Operations
             {
                 bool flag = true;
                 for (size_t i = 0; i < A.size(); ++i)
-                    if (A[i] != B[i])
+                    if (A[i].first != B[i])
                     {
                         flag = false;
                         break;
@@ -79,7 +104,7 @@ namespace Operations
                 if (flag)
                 {
                     for (size_t i = 0; i < A.size(); ++i)
-                        savedAPos.push_back(i);
+                        savedAPos.push_back(q->words[A[i].first].occurrences[fileId][A[i].second]);
                     _score = 1.0;
                     return;
                 }
@@ -93,7 +118,7 @@ namespace Operations
             return _score;
         }
 
-        std::vector<int> getLCSPositionsInA() const
+        std::vector<baseNode> getLCSPositionsInA() const
         {
             return savedAPos;
         }
@@ -137,20 +162,18 @@ namespace Operations
             }
 
             // Prepare vector of words
-            std::vector<int> levData, levQuery;
-            for (size_t i = 0; i < occurs.size(); ++i)
-                levData.push_back(occurs[i].first);
+            std::vector<int> levQuery;
             for (size_t i = 0; i < q->words.size(); ++i)
                 if (!q->words[i].isExcluded())
                     levQuery.push_back(q->words[i].isWild() ? -1 : i);
 
             // Calculate the score using Ratcliff/Obershelp formula
-            RatcliffObershelp matcher(levData, levQuery);
+            RatcliffObershelp matcher(q, fileId, occurs, levQuery);
             it->second = matcher.score() + numWords;
 
             // Insert data for highlighting
-            for (int x: matcher.getLCSPositionsInA())
-                q->highlights.push_back(q->words[occurs[x].first].occurrences[fileId][occurs[x].second]);
+            for (baseNode x: matcher.getLCSPositionsInA())
+                q->highlights.push_back(x);
         }
     }
 
