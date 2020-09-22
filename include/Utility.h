@@ -46,7 +46,7 @@
 
 typedef std::pair<int, int> pii;
 
-inline void string_copy (const Pchar from, Pchar& to)
+inline void string_copy(const Pchar from, Pchar& to)
 {
     to = (Pchar)malloc(strlen(from) + 1);
     for (Pchar p = to; (*p = *from) != '\0'; ++p, ++from);
@@ -71,31 +71,31 @@ public:
     {
         init();
     }
-    multitype (const Int e)
+    multitype(const Int e)
     {
         assign(e);
     }
-    multitype (const Long e)
+    multitype(const Long e)
     {
         assign(e);
     }
-    multitype (const Char e)
+    multitype(const Char e)
     {
         assign(e);
     }
-    multitype (const Pchar e)
+    multitype(const Pchar e)
     {
         assign(e);
     }
-    multitype (const Double e)
+    multitype(const Double e)
     {
         assign(e);
     }
-    multitype (const multitype& e)
+    multitype(const multitype& e)
     {
         assign(e);
     }
-    multitype (const std::string& e)
+    multitype(const std::string& e)
     {
         assign(e.c_str());
     }
@@ -107,32 +107,32 @@ public:
     }
 
     // assign functions
-    void assign (const Int e)
+    void assign(const Int e)
     {
         string_copy("int", _type);
         values._tint = e;
     }
-    void assign (const Long e)
+    void assign(const Long e)
     {
         string_copy("long", _type);
         values._tlong = e;
     }
-    void assign (const Char e)
+    void assign(const Char e)
     {
         string_copy("char", _type);
         values._tchar = e;
     }
-    void assign (const Pchar e)
+    void assign(const Pchar e)
     {
         string_copy("str", _type);
         string_copy(e, values._tpchar);
     }
-    void assign (const Double e)
+    void assign(const Double e)
     {
         string_copy("double", _type);
         values._tdouble = e;
     }
-    void assign (const multitype& e)
+    void assign(const multitype& e)
     {
         string_copy(e.type(), _type);
         if (e.is_type("int"))
@@ -146,7 +146,7 @@ public:
         if (e.is_type("double"))
             values._tdouble = e.to_double();
     }
-    void assign (const std::string& e)
+    void assign(const std::string& e)
     {
         assign(e.c_str());
     }
@@ -189,11 +189,11 @@ public:
 
     // append e.to_str() to the end of this->to_str().
     // this changes the type of 'this' to "str".
-    multitype& append (const multitype& e)
+    multitype& append(const multitype& e)
     {
-        Char *cur = to_str(),
-             *app = e.to_str(),
-             *res = new Char[strlen(cur) + strlen(app) + 1];
+        Char* cur = to_str(),
+            * app = e.to_str(),
+            * res = new Char[strlen(cur) + strlen(app) + 1];
         Int j = 0;
         for (Int i = 0; i < (Int)strlen(cur); res[j++] = cur[i++]);
         for (Int i = 0; i < (Int)strlen(app); res[j++] = app[i++]);
@@ -210,7 +210,7 @@ public:
     }
 
     // check if current value has the type of e. this equals to 'type() == e'.
-    bool is_type (const Pchar e) const
+    bool is_type(const Pchar e) const
     {
         return strcmp(_type, e) == 0;
     }
@@ -237,7 +237,7 @@ public:
             Int ret = 0;
             for (Int i = neg; i < (Int)strlen(values._tpchar); ++i)
                 if (values._tpchar[i] >= '0' && values._tpchar[i] <= '9')
-                    ret = ret*10 + values._tpchar[i] - '0';
+                    ret = ret * 10 + values._tpchar[i] - '0';
                 else
                     break;
             if (neg)
@@ -264,7 +264,7 @@ public:
             Long ret = 0;
             for (Int i = neg; i < (Int)strlen(values._tpchar); ++i)
                 if (values._tpchar[i] >= '0' && values._tpchar[i] <= '9')
-                    ret = ret*10 + values._tpchar[i] - '0';
+                    ret = ret * 10 + values._tpchar[i] - '0';
                 else
                     break;
             if (neg)
@@ -327,7 +327,7 @@ public:
             snprintf(buf, STR_BUFFER, "%.15f", values._tdouble);
 
             // trim trailing zeroes
-            char *p = strchr(buf, '.');
+            char* p = strchr(buf, '.');
             int count;
 
             if (p != NULL)
@@ -335,10 +335,10 @@ public:
                 count = 10;
                 while (count >= 0)
                 {
-                     --count;
-                     if (*p == '\0')
-                         break;
-                     ++p;
+                    --count;
+                    if (*p == '\0')
+                        break;
+                    ++p;
                 }
                 *p-- = '\0';
                 while (*p == '0')
@@ -377,7 +377,7 @@ public:
             Int i = neg;
             for (; i < (Int)strlen(values._tpchar); ++i)
                 if (values._tpchar[i] >= '0' && values._tpchar[i] <= '9')
-                    ret = ret*10 + values._tpchar[i] - '0';
+                    ret = ret * 10 + values._tpchar[i] - '0';
                 else
                     break;
             if (i < (Int)strlen(values._tpchar) && values._tpchar[i++] == '.')
@@ -395,18 +395,18 @@ public:
         if (is_type("double"))
             return values._tdouble;
 
-        #ifdef NAN
+#ifdef NAN
         return NAN;
-        #elif defined INFINITY
+#elif defined INFINITY
         return INFINITY;
-        #else
+#else
         return 0;
-        #endif
+#endif
     }
 
     // compare two multitypes. this function first converts the values into the
     // same logical type before making the comparison.
-    bool equal (const multitype& e) const
+    bool equal(const multitype& e) const
     {
         if (is_type(e.type()))
             return strict_equal(e);
@@ -419,7 +419,7 @@ public:
 
     // same as equal but this function does not convert any value. thus, if the
     // values differ in type, it returns FALSE.
-    bool strict_equal (const multitype& e) const
+    bool strict_equal(const multitype& e) const
     {
         if (!is_type(e.type()))
             return false;
@@ -480,7 +480,7 @@ private:
 
             std::string filename = ffd.cFileName;
             bool flag = true;
-            for (char x: filename)
+            for (char x : filename)
                 if (x < 32 || x > 126)
                 {
                     flag = false;
@@ -488,8 +488,7 @@ private:
                 }
             if (flag)
                 _files.push_back(filename);
-        }
-        while (FindNextFile(hFind, &ffd));
+        } while (FindNextFile(hFind, &ffd));
 
         if (GetLastError() != ERROR_NO_MORE_FILES)
             throw std::runtime_error(std::string("'") + DIR + "': An error occurred when trying to read the directory");
@@ -505,7 +504,7 @@ public:
         prepare();
     }
 
-    dirHandler (const std::string& directory)
+    dirHandler(const std::string& directory)
     {
         char full[MAX_PATH];
         if (!GetFullPathName(directory.c_str(), MAX_PATH, full, nullptr))
@@ -573,7 +572,7 @@ public:
 
     // Set fillWhiteSpace=true will replace invalid characters with white spaces
     // (so as to keep the position of the words unchanged)
-    std::string readAll (bool fillWhiteSpace = true) const
+    std::string readAll(bool fillWhiteSpace = true) const
     {
         if (isDir)
             return "";
@@ -589,46 +588,46 @@ public:
             return result;
         }
         else
-        if (ifs.eof())
-            result.clear();
-        else {
-            int ch1 = ifs.get();
-            int ch2 = ifs.get();
-            if (ch1 == 0xff && ch2 == 0xfe)
-                // The file contains UTF-16LE BOM
-                encoding = ENCODING_UTF16LE;
-            else
-            if (ch1 == 0xfe && ch2 == 0xff)
-                // The file contains UTF-16BE BOM
-                encoding = ENCODING_UTF16BE;
-            else
-            {
-                int ch3 = ifs.get();
-                if (ch1 == 0xef && ch2 == 0xbb && ch3 == 0xbf)
-                    // The file contains UTF-8 BOM
-                    encoding = ENCODING_UTF8;
+            if (ifs.eof())
+                result.clear();
+            else {
+                int ch1 = ifs.get();
+                int ch2 = ifs.get();
+                if (ch1 == 0xff && ch2 == 0xfe)
+                    // The file contains UTF-16LE BOM
+                    encoding = ENCODING_UTF16LE;
                 else
-                {
-                    // The file does not have BOM
-                    encoding = ENCODING_ASCII;
-                    ifs.seekg(0);
-                }
+                    if (ch1 == 0xfe && ch2 == 0xff)
+                        // The file contains UTF-16BE BOM
+                        encoding = ENCODING_UTF16BE;
+                    else
+                    {
+                        int ch3 = ifs.get();
+                        if (ch1 == 0xef && ch2 == 0xbb && ch3 == 0xbf)
+                            // The file contains UTF-8 BOM
+                            encoding = ENCODING_UTF8;
+                        else
+                        {
+                            // The file does not have BOM
+                            encoding = ENCODING_ASCII;
+                            ifs.seekg(0);
+                        }
+                    }
             }
-        }
         ss << ifs.rdbuf() << '\0';
 
         if (encoding == ENCODING_UTF16LE || encoding == ENCODING_UTF16BE)
         {
             std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> utfconv;
-            result = utfconv.to_bytes(std::wstring((wchar_t *)ss.str().c_str()));
+            result = utfconv.to_bytes(std::wstring((wchar_t*)ss.str().c_str()));
         }
         else
             result = ss.str();
 
         if (fillWhiteSpace)
-            std::replace_if(result.begin(), result.end(), [](char x){ return (x < 32 || x > 126) && x != '\n' && x != '\r'; }, ' ');
+            std::replace_if(result.begin(), result.end(), [](char x) { return (x < 32 || x > 126) && x != '\n' && x != '\r'; }, ' ');
         else
-            result.erase(std::remove_if(result.begin(), result.end(), [](char x){ return (x < 32 || x > 126) && x != '\n' && x != '\r'; }), result.end());
+            result.erase(std::remove_if(result.begin(), result.end(), [](char x) { return (x < 32 || x > 126) && x != '\n' && x != '\r'; }), result.end());
         return result;
     }
 
@@ -651,13 +650,13 @@ public:
         return *this;
     }
 
-    dirHandler& next (const std::string& filename)
+    dirHandler& next(const std::string& filename)
     {
         if (!isDir)
             return *this;
 
         bool found = false;
-        for (std::string file: _files)
+        for (std::string file : _files)
         {
             bool ok = file.length() == filename.length();
             for (size_t i = 0; ok && i < file.length(); ++i)

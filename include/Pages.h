@@ -2,13 +2,22 @@
 #define _PAGES_H_
 
 #include "Gui.h"
-#include <vector>
 #include "Base.h"
+using std::vector;
+using std::min;
+using std::endl;
 
 string getName(string dir)
 {
 	int i = dir.rfind("\\") + 1, j = dir.length();
 	return dir.substr(i, j - i);
+}
+string shortenName(string name, int len)
+{
+	if (int(name.length()) <= len)
+		return name;
+	else
+		return name.substr(0, len - 3) + "...";
 }
 
 struct File {
@@ -21,14 +30,14 @@ struct File {
 struct Line {
 	string str;
 	bool* check = nullptr;
-	void printLine()
+	void printLine(int color)
 	{
-		for (size_t i = 0; i < str.length(); i++)
+		for (int i = 0; i < int(str.length()); i++)
 		{
 			if (check[i])
-				textColor(0, 12);
+				textColor(0, 14);
 			else
-				textColor(0, 13);
+				textColor(0, color);
 			cout << str[i];
 		}
 	}
@@ -36,51 +45,58 @@ struct Line {
 class Pages
 {
 private:
-	int posX, posY;
-	int cntLines, lenLines;
+	int posX = PAGES_POSX, posY = PAGES_POSY;
+	int cntLines = PAGES_CNT, lenLines = PAGES_LEN;
 	int xL, xR, yLR;
 	vector<Line> name;
 	vector<Line> lines;
 	vector<baseNode> words;
 public:
-	int numPages, curPages;
+	int numPages, curPages = -1;
 	Pages(File file)
 	{
-		posX = PAGES_POSX; posY = PAGES_POSY;
-		cntLines = PAGES_CNT; lenLines = PAGES_LEN;
 		words = file.words;
 		modifyLine(-1, "<<<" + file.filename + ">>>", true); cntLines -= name.size() + 1;
 		readFile(file.dir);
 		numPages = (lines.size() - 1) / cntLines;
-		curPages = 0;
+		if (curPages == -1) curPages = 0;
 		xL = posX - 2; xR = posX + lenLines + 1;
 		yLR = posY + (cntLines - 1) / 2;
 	}
 	void clear()
 	{
-		for (size_t i = 0; i < lines.size(); i++)
+		int size = lines.size();
+		for (int i = 0; i < size; i++)
 			if (lines[i].check)
 				delete[] lines[i].check;
 		lines.clear();
 	}
-	bool isHL(int k, int curLine)
+	bool isHL(int k, int curLine, int& len)
 	{
-		for (size_t i = 0; i < words.size(); i++)
+		int size = words.size();
+		for (int i = 0; i < size; i++)
 			if (curLine == words[i].line && k == words[i].pos)
+			{
+				len = words[i].numWords;
+				if (curPages == -1)
+					curPages = lines.size() / cntLines;
 				return true;
+			}
 		return false;
 	}
 	void buildLine(Line& line, string str, int i, int j, int curLine)
 	{
 		line.str = str;
-		line.check = new bool[str.length()+5];
+		line.check = new bool[str.length() + 5];
 		int k = i;
 		while (k <= j)
 		{
-			if (isHL(k, curLine))
-				while (k <= j && isalpha(line.str[k - i]))
+			int cnt = 0, len = 0;
+			if (isHL(k, curLine, len))
+				while (k <= j && cnt < len)
 				{
 					line.check[k - i] = true;
+					if (!normal(str[k - i])) cnt++;
 					k++;
 				}
 			else
@@ -127,7 +143,8 @@ public:
 		string str = dir.readAll();
 		string line = "";
 		int curLine = 0;
-		for (size_t i = 0; i < str.length(); i++)
+		int len = str.length();
+		for (int i = 0; i < len; i++)
 			if (str[i] == '\n')
 			{
 				modifyLine(curLine++, line, false);
@@ -148,23 +165,25 @@ public:
 		}
 		int len = lines.size() - 1;
 		int startLine = curPage * cntLines, endLine = min(startLine + cntLines - 1, len);
-		for (size_t i = 0; i < name.size(); i++) {
-			goToXY(posX, posY + i); name[i].printLine();
+		for (int i = 0; i < int(name.size()); i++) {
+			goToXY(posX, posY + i); name[i].printLine(14);
 		}
 		for (int i = startLine; i <= endLine; i++) {
-			goToXY(posX, posY + name.size() + 1 + i - startLine); lines[i].printLine();
+			goToXY(posX, posY + name.size() + 1 + i - startLine); lines[i].printLine(8);
 		}
 		goToXY(posX + lenLines - 5, posY + cntLines + name.size() + 2); cout << curPage + 1 << "/" << numPages + 1;
 	}
 	void clearPage()
 	{
-		for (size_t i = posY; i < posY + cntLines + name.size() + 1; i++)
+		int nameSize = name.size();
+		for (int i = posY; i < posY + cntLines + nameSize + 1; i++)
 		{
 			goToXY(posX, i);
 			for (int i = 0; i < lenLines; i++) cout << ' ';
 		}
 		goToXY(xL, yLR); cout << ' ';
 		goToXY(xR, yLR); cout << ' ';
+		goToXY(posX + lenLines - 5, posY + cntLines + name.size() + 2); cout << "      ";
 	}
 	bool movePages()
 	{

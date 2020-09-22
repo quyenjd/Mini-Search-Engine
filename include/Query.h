@@ -7,9 +7,9 @@
 #include <string>
 #include <vector>
 
-inline void preNormalize (std::string& str)
+inline void preNormalize(std::string& str)
 {
-    str.erase(std::remove_if(str.begin(), str.end(), [](char x){ return punc(x); }), str.end());
+    str.erase(std::remove_if(str.begin(), str.end(), [](char x) { return punc(x); }), str.end());
     for (size_t i = 0; i < str.length(); ++i)
         if (!normal(str[i]))
             str[i] = ' ';
@@ -21,7 +21,7 @@ private:
     multitype V1, V2;
     bool _isWild, _isRange, _isIncluded, _isExcluded, _isSynonym;
 
-    std::vector<int> KMPMatching (const std::vector<pii>& text, const std::vector<int>& pat)
+    std::vector<int> KMPMatching(const std::vector<pii>& text, const std::vector<int>& pat)
     {
         int N = text.size(), M = pat.size();
         std::vector<int> res;
@@ -60,20 +60,20 @@ private:
                 j = lps[j - 1];
             }
             else
-            if (i < N && pat[j] != text[i].first)
-            {
-                if (j)
-                    j = lps[j - 1];
-                else
-                    ++i;
-            }
+                if (i < N && pat[j] != text[i].first)
+                {
+                    if (j)
+                        j = lps[j - 1];
+                    else
+                        ++i;
+                }
         }
 
         return res;
     }
 
     // Combine the occurrences of the words inside a sequence into a list of occurrences of that sequence.
-    void combineOccurrences (std::vector<baseNode>& res, const std::vector<std::vector<baseNode> >& occurs)
+    void combineOccurrences(std::vector<baseNode>& res, const std::vector<std::vector<baseNode> >& occurs)
     {
         // Prepare a full list of occurrences and sort it
         std::vector<pii> occurPointers;
@@ -81,7 +81,7 @@ private:
             for (size_t j = 0; j < occurs[i].size(); ++j)
                 occurPointers.push_back(std::make_pair(i, j));
         std::sort(occurPointers.begin(), occurPointers.end(), [occurs](pii a, pii b)
-                  { return occurs[a.first][a.second] < occurs[b.first][b.second]; });
+            { return occurs[a.first][a.second] < occurs[b.first][b.second]; });
 
         // Make the list unique
         auto it = std::unique(occurPointers.begin(), occurPointers.end());
@@ -97,7 +97,7 @@ private:
             {
                 pii prev = occurPointers[i - 1];
                 baseNode curID = occurs[cur.first][cur.second],
-                         prevID = occurs[prev.first][prev.second];
+                    prevID = occurs[prev.first][prev.second];
                 if (curID.fileInd != prevID.fileInd || curID.id - prevID.id > 1)
                     KMPData.push_back(std::make_pair(-1, 0));
             }
@@ -109,11 +109,11 @@ private:
 
         // Push the rest into the resulting vector
         res.clear();
-        for (int x: KMP)
+        for (int x : KMP)
             res.push_back(occurs[KMPData[x].first][KMPData[x].second]);
     }
 
-    void searchWrapper (baseData *bd, std::string query)
+    void searchWrapper(baseData* bd, std::string query)
     {
         // Normalize the query string
         preNormalize(query);
@@ -148,10 +148,10 @@ public:
         _isRange = _isIncluded = _isExcluded = _isSynonym = false;
     }
 
-    queryNode (const multitype& _V1,
-               bool __isIncluded = false,
-               bool __isExcluded = false,
-               bool __isSynonym = false)
+    queryNode(const multitype& _V1,
+        bool __isIncluded = false,
+        bool __isExcluded = false,
+        bool __isSynonym = false)
     {
         V1 = _V1;
         _isWild = _isRange = false;
@@ -164,7 +164,7 @@ public:
         _isExcluded = _isIncluded ? false : __isExcluded;
     }
 
-    queryNode (const multitype& _V1, const multitype& _V2)
+    queryNode(const multitype& _V1, const multitype& _V2)
     {
         V1 = _V1;
         V2 = _V2;
@@ -289,7 +289,7 @@ public:
     }
 
     // map occurrences with fileInd, given the original data.
-    void mapOccurrences (baseData *bd)
+    void mapOccurrences(baseData* bd)
     {
         occurrences.clear();
 
@@ -323,7 +323,7 @@ public:
         if (isSynonym())
         {
             std::vector<int> syns = bd->theSearch(V1.to_str());
-            for (int x: syns)
+            for (int x : syns)
                 searchWrapper(bd, bd->theWords[x]);
         }
 
@@ -338,7 +338,7 @@ private:
     // original query.
     multitype _query;
 
-    bool readNum (size_t& i, std::string& word, const std::string& str)
+    bool readNum(size_t& i, std::string& word, const std::string& str)
     {
         bool flag = true;
         for (; i < str.length() && (normal(str[i]) || punc(str[i])); ++i)
@@ -347,21 +347,21 @@ private:
                 flag = false;
             word += str[i];
         }
-        word.erase(std::remove_if(word.begin(), word.end(), [](char x){ return punc(x); }), word.end());
+        word.erase(std::remove_if(word.begin(), word.end(), [](char x) { return punc(x); }), word.end());
         for (; i < str.length() && all(str[i]) && !normal(str[i]); ++i)
             flag = false;
         return flag;
     }
 
-    void readStr (size_t& i, std::string& word, const std::string& str)
+    void readStr(size_t& i, std::string& word, const std::string& str)
     {
         for (; i < str.length() && (normal(str[i]) || punc(str[i])); ++i)
             word += upper(str[i]);
-        word.erase(std::remove_if(word.begin(), word.end(), [](char x){ return punc(x); }), word.end());
+        word.erase(std::remove_if(word.begin(), word.end(), [](char x) { return punc(x); }), word.end());
         for (; i < str.length() && all(str[i]) && !normal(str[i]); ++i);
     }
 
-    bool readQuoted (size_t& i, std::string& word, const std::string& str)
+    bool readQuoted(size_t& i, std::string& word, const std::string& str)
     {
         size_t tmp = ++i;
         for (; i < str.length(); ++i)
@@ -402,7 +402,7 @@ public:
 
     // this method splits 'queryStr' into words and normalize them
     // before pushing into array 'words'.
-    queryData (const multitype& queryStr, bool eliminateStopwords = false)
+    queryData(const multitype& queryStr, bool eliminateStopwords = false)
     {
         _query = queryStr;
 
@@ -421,9 +421,9 @@ public:
 
             std::string word;
             bool numberFlag = false,
-                 includedFlag = false,
-                 excludedFlag = false,
-                 synonymFlag = false;
+                includedFlag = false,
+                excludedFlag = false,
+                synonymFlag = false;
 
             // if exact match, read everything inside the quotes or only one word.
             if (str[i] == '"')
@@ -432,71 +432,71 @@ public:
                     continue;
             }
             else
-            // if price, loop through all consequent digits.
-            if (str[i] == '$')
-            {
-                word = "$";
-
-                // if NaN, pop the dollar character.
-                if (!(numberFlag = readNum(++i, word, str)) ||
-                    /* if a word contains only dollar sign, erase it. */ word.length() == 1)
-                    word.erase(0, 1);
-
-                // if the string is now empty,
-                // skip the rest to prevent a wild entry from being pushed.
-                if (word.empty())
-                    continue;
-            }
-            else
-            // if digit, loop through all consequent digits.
-            if (number(str[i]))
-                numberFlag = readNum(i, word, str);
-            else
-            // if wild, next character should be empty.
-            if (str[i] == '*')
-            {
-                if (i + 1 < str.length() && all(str[i + 1]))
+                // if price, loop through all consequent digits.
+                if (str[i] == '$')
                 {
-                    ++i;
-                    continue;
+                    word = "$";
+
+                    // if NaN, pop the dollar character.
+                    if (!(numberFlag = readNum(++i, word, str)) ||
+                        /* if a word contains only dollar sign, erase it. */ word.length() == 1)
+                        word.erase(0, 1);
+
+                    // if the string is now empty,
+                    // skip the rest to prevent a wild entry from being pushed.
+                    if (word.empty())
+                        continue;
                 }
-            }
-            else
-            // if included, set flag and read all upcoming characters.
-            if (str[i] == '+')
-            {
-                readStr(++i, word, str);
-                includedFlag = true;
-            }
-            else
-            // if excluded, set flag and read all upcoming characters.
-            if (str[i] == '-')
-            {
-                readStr(++i, word, str);
-                excludedFlag = true;
-            }
-            else
-            // if synonym, set flag and read all upcoming characters.
-            if (str[i] == '~')
-            {
-                readStr(++i, word, str);
-                synonymFlag = true;
-            }
-            else
-            // if hash, just basically read the whole hash.
-            if (str[i] == '#')
-            {
-                word = "#";
-                readStr(++i, word, str);
+                else
+                    // if digit, loop through all consequent digits.
+                    if (number(str[i]))
+                        numberFlag = readNum(i, word, str);
+                    else
+                        // if wild, next character should be empty.
+                        if (str[i] == '*')
+                        {
+                            if (i + 1 < str.length() && all(str[i + 1]))
+                            {
+                                ++i;
+                                continue;
+                            }
+                        }
+                        else
+                            // if included, set flag and read all upcoming characters.
+                            if (str[i] == '+')
+                            {
+                                readStr(++i, word, str);
+                                includedFlag = true;
+                            }
+                            else
+                                // if excluded, set flag and read all upcoming characters.
+                                if (str[i] == '-')
+                                {
+                                    readStr(++i, word, str);
+                                    excludedFlag = true;
+                                }
+                                else
+                                    // if synonym, set flag and read all upcoming characters.
+                                    if (str[i] == '~')
+                                    {
+                                        readStr(++i, word, str);
+                                        synonymFlag = true;
+                                    }
+                                    else
+                                        // if hash, just basically read the whole hash.
+                                        if (str[i] == '#')
+                                        {
+                                            word = "#";
+                                            readStr(++i, word, str);
 
-                if (word.length() == 1)
-                    continue;
+                                            if (word.length() == 1)
+                                                continue;
 
-                includedFlag = true;
-            }
-            else
-            // if no operation is specified, just read.
-                readStr(i, word, str);
+                                            includedFlag = true;
+                                        }
+                                        else
+                                            // if no operation is specified, just read.
+                                            readStr(i, word, str);
 
             // after done processing a number,
             // check if a range query is happening.
@@ -506,41 +506,41 @@ public:
                 rangeFlag = false;
             }
             else
-            // check if this is a range query.
-            if (numberFlag && i + 2 < str.length() && str[i] == '.' && str[i + 1] == '.')
-            {
-                i += 2;
-                rangeFlag = true;
-                tmp = word;
-            }
-            else
-            {
-                // if rangeFlag is still ON, push 'tmp' into the array first.
-                if (rangeFlag)
+                // check if this is a range query.
+                if (numberFlag && i + 2 < str.length() && str[i] == '.' && str[i + 1] == '.')
                 {
-                    words.push_back(queryNode(tmp));
-                    rangeFlag = false;
+                    i += 2;
+                    rangeFlag = true;
+                    tmp = word;
                 }
+                else
+                {
+                    // if rangeFlag is still ON, push 'tmp' into the array first.
+                    if (rangeFlag)
+                    {
+                        words.push_back(queryNode(tmp));
+                        rangeFlag = false;
+                    }
 
-                // if some flag is ON, push with flag.
-                if (includedFlag || excludedFlag || synonymFlag)
-                {
-                    if (word.empty())
-                        continue;
-                    words.push_back(queryNode(word, includedFlag, excludedFlag, synonymFlag));
+                    // if some flag is ON, push with flag.
+                    if (includedFlag || excludedFlag || synonymFlag)
+                    {
+                        if (word.empty())
+                            continue;
+                        words.push_back(queryNode(word, includedFlag, excludedFlag, synonymFlag));
+                    }
+                    else
+                        // if 'word' is empty, push as wild.
+                        if (word.empty())
+                        {
+                            ++i;
+                            words.push_back(queryNode());
+                        }
+                        else
+                            // if no flag is marked, check stopword and push.
+                            if (!eliminateStopwords || stopwords.find(word) == stopwords.end())
+                                words.push_back(queryNode(word));
                 }
-                else
-                // if 'word' is empty, push as wild.
-                if (word.empty())
-                {
-                    ++i;
-                    words.push_back(queryNode());
-                }
-                else
-                // if no flag is marked, check stopword and push.
-                if (!eliminateStopwords || stopwords.find(word) == stopwords.end())
-                    words.push_back(queryNode(word));
-            }
         }
 
         // if range flag is still ON here, push the buffered into array.
@@ -558,7 +558,7 @@ public:
     }
 
     // filter the map 'matchIDs' to vector by eliminating underthreshold ones.
-    std::vector<std::pair<int, double> > getScores (const double MATCHING_THRESHOLD = 0.5) const
+    std::vector<std::pair<int, double> > getScores(const double MATCHING_THRESHOLD = 0.5) const
     {
         std::vector<std::pair<int, double> > res;
         for (auto it = matchIDs.begin(); it != matchIDs.end(); ++it)
@@ -568,7 +568,7 @@ public:
         return res;
     }
 
-    std::vector<baseNode> getHighlightsByFileId (int fileId) const
+    std::vector<baseNode> getHighlightsByFileId(int fileId) const
     {
         std::vector<baseNode> res;
         for (size_t i = 0; i < highlights.size(); ++i)

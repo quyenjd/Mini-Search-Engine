@@ -402,6 +402,7 @@ struct baseData
         {
             goToXY(x, y++); std::cout << "[ERROR] " << TrieBinaryDir << " not found\n";
             goToXY(x, y++); std::cout << "[INFO] Try load new instead!";
+            delete root; root = nullptr;
             return;
         }
 
@@ -414,6 +415,7 @@ struct baseData
         {
             goToXY(x, y++); std::cout << "[ERROR] " << NumberBinaryDir << " not found\n";
             goToXY(x, y++); std::cout << "[INFO] Try load new instead!";
+            delete root; root = nullptr;
             return;
         }
 
@@ -435,6 +437,7 @@ struct baseData
         {
             goToXY(x, y++); std::cout << "[ERROR] " << FilenamesDir << " not found\n";
             goToXY(x, y++); std::cout << "[INFO] Try load new instead!";
+            delete root; root = nullptr;
             return;
         }
 
@@ -584,7 +587,7 @@ struct baseData
         }
 
         time = (clock() - time) / CLOCKS_PER_SEC;
-        std::cout << "[INFO] Thesaurus importing done in " << std::fixed << std::setprecision(3) << time << "s\n";
+        //std::cout << "[INFO] Thesaurus importing done in " << std::fixed << std::setprecision(3) << time << "s\n";
     }
 
     void theReadText()

@@ -2,23 +2,9 @@
 #define _FILES_H_
 
 #include "Pages.h"
-
-#define FILES_POSX 10
-#define FILES_POSY 8
-#define FILES_CNT 10
-#define FILES_LEN 40
-
-vector<baseNode> listWord(int fileId, queryData* query, baseData* data)
-{
-	vector<baseNode> words;
-	for (auto x : query->words)
-	{
-		x.mapOccurrences(data);
-		vector<baseNode> word = x.occurrences[fileId];
-		words.insert(words.end(), word.begin(), word.end());
-	}
-	return words;
-}
+using std::pair;
+using std::fixed;
+using std::setprecision;
 
 class FilesList
 {
@@ -27,19 +13,23 @@ private:
 	int cntFiles = FILES_CNT, lenFiles = FILES_LEN;
 	vector<File> files;
 public:
-	int numFiles = -1, curFiles = 0;
+	int numFiles = -1, curFiles = 0, totalFiles;
 	FilesList(vector<pair<int, double>> listFile, baseData* data, queryData* query)
 	{
 		if (listFile.size() == 0) return;
-		numFiles = listFile.size();
+		totalFiles = listFile.size();
+		if (totalFiles > 10)
+			numFiles = 10;
+		else
+			numFiles = totalFiles;
 		for (int i = 0; i < numFiles; i++)
 		{
 			File file;
 			file.dir = data->fileNames[listFile[i].first];
 			file.filename = getName(file.dir);
-			file.shortName = shortenName(file.filename);
+			file.shortName = shortenName(file.filename, lenFiles);
 			file.score = listFile[i].second;
-			file.words = query->getHighlightsByFileId(listFile[i].first); //listWord(listFile[i].first, query, data);
+			file.words = query->getHighlightsByFileId(listFile[i].first);
 			files.push_back(file);
 		}
 	}
@@ -47,24 +37,18 @@ public:
 	{
 		files.clear();
 	}
-	string shortenName(string name)
-	{
-		if ((int)name.length() <= lenFiles)
-			return name;
-		else
-			return name.substr(0, lenFiles - 3) + "...";
-	}
 	void printList(int num)
 	{
-		textColor(0, 13);
-		goToXY(posX + 11, posY); cout << "<<<LIST FILES>>>" << endl;
+		textColor(0, 14);
+		goToXY(posX + 7, posY); cout << "<<<TOP 10 FILES>>> (" << totalFiles << " founded)" << endl;
+		textColor(0, 8);
 		for (int i = 0; i < numFiles; i++)
 			if (i == num)
 			{
-				textColor(0, 12);
+				textColor(0, 14);
 				goToXY(posX - 1, posY + 2 + i * 2); cout << char(16) << files[i].shortName;
 				goToXY(posX + 1, posY + 3 + i * 2); cout << fixed << setprecision(2) << "Score: " << files[i].score;
-				textColor(0, 13);
+				textColor(0, 8);
 			}
 			else
 			{
@@ -104,7 +88,7 @@ public:
 					showFiles(curFiles);
 					drawBoard(FILES_POSX - 5, FILES_POSY - 2, FILES_CNT * 2 + 6, FILES_LEN + 10, 12);
 				}
-
+					
 			}
 		}
 		return true;
@@ -113,7 +97,7 @@ public:
 	{
 		Pages pages(files[num]);
 		drawBoard(PAGES_POSX - 5, PAGES_POSY - 2, PAGES_CNT + 4, PAGES_LEN + 10, 12);
-		pages.printPage(0);
+		pages.printPage(pages.curPages);
 		while (true)
 		{
 			if (!pages.movePages())

@@ -5,7 +5,8 @@
 #include <Windows.h>
 #include <string>
 #include <conio.h>
-using namespace std;
+using std::cout;
+using std::string;
 
 #define FILES_POSX 10
 #define FILES_POSY 8
@@ -28,7 +29,7 @@ void fixConsoleWindow();
 void HidePointer();
 void ShowPointer();
 void drawBoard(int x, int y, int height, int width, int color);
-bool getQuery(std::string& str);
+bool getQuery(string& str);
 
 void resizeConsole(int width, int height)
 {
@@ -74,24 +75,25 @@ void drawBoard(int x, int y, int height, int width, int color)
 {
 	int u = x + width, v = y + height;
 	textColor(0, color);
-	goToXY(x, y);	std::cout << char(201);
-	goToXY(x, v);	std::cout << char(200);
-	goToXY(u, y);	std::cout << char(187);
-	goToXY(u, v);	std::cout << char(188);
+	goToXY(x, y);	cout << char(201);
+	goToXY(x, v);	cout << char(200);
+	goToXY(u, y);	cout << char(187);
+	goToXY(u, v);	cout << char(188);
 	goToXY(x + 1, y);
-	for (int i = x + 1; i < u; i++) std::cout << char(205);
+	for (int i = x + 1; i < u; i++) cout << char(205);
 	goToXY(x + 1, v);
-	for (int i = x + 1; i < u; i++) std::cout << char(205);
+	for (int i = x + 1; i < u; i++) cout << char(205);
 	for (int i = y + 1; i < v; i++) {
-		goToXY(x, i); std::cout << char(186);
+		goToXY(x, i); cout << char(186);
 	}
 	for (int i = y + 1; i < v; i++) {
-		goToXY(u, i); std::cout << char(186);
+		goToXY(u, i); cout << char(186);
 	}
 }
-bool getQuery(std::string& str)
+bool getQuery(string& str, int color)
 {
-	textColor(0, 12);
+	textColor(0, color);
+	bool isArrow = false;
 	int keyValue;
 	while (true)
 	{
@@ -100,18 +102,49 @@ bool getQuery(std::string& str)
 			keyValue = _getch();
 			if (keyValue == 27)
 				return false;
-			if (32 <= keyValue && keyValue <= 126 && str.length()<=70)
+			if (keyValue == 224)
 			{
-				cout << (char)keyValue;
-				str.push_back((char)keyValue);
+				isArrow = true;
+				continue;
+			}
+			if (isArrow)
+			{
+				isArrow = false;
+				continue;
+			}
+			if (32 <= keyValue && keyValue <= 126)
+			{
+				if (str.length() == 140)
+				{
+					HidePointer();
+					textColor(0, 4); 
+					goToXY(59, 28); cout << "[INFO] The query has reached its maximum size!";
+					textColor(0, color);
+					goToXY(129, 25);
+					ShowPointer();
+				}
+				else
+				{
+					if (str.length() == 70) goToXY(59, 25);
+					cout << (char)keyValue;
+					str.push_back((char)keyValue);
+				}
 			}
 			if (keyValue == '\b' && str.length() > 0)
 			{
+				if (str.length() == 140)
+				{
+					HidePointer();
+					goToXY(59, 28); cout << "                                               ";
+					goToXY(129, 25);
+					ShowPointer();
+				}
 				cout << "\b \b";
 				str.pop_back();
+				if (str.length() == 70) goToXY(129, 24);
 			}
 			if (keyValue == 13)
-				break;
+				return true;
 		}
 	}
 	return true;
@@ -151,7 +184,7 @@ void printNote(int x, int y)
 {
 	textColor(0, 4);
 	goToXY(x, y++); cout << "Use arrows to move";
-	goToXY(x, y++); cout<<"\"Esc\": return";
+	goToXY(x, y++); cout << "\"Esc\": return";
 	goToXY(x, y++); cout << "\"Enter\": choose";
 }
 

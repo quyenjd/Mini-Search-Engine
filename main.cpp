@@ -4,7 +4,7 @@
 #include "Files.h"
 #include "Operations.h"
 
-const int RESULT_LIMIT_PER_QUERY = 10;
+#define yn(x) ((x) ? "[Y]" : "[N]")
 
 void option(int posX, int posY);
 bool search(baseData* data);
@@ -20,11 +20,11 @@ int main()
 
 bool search(baseData* data)
 {
-	drawBoard(38, 23, 2, 95, 13);
+	drawBoard(38, 23, 3, 95, 13);
 	goToXY(40, 24);  cout << "ENTER YOUR SEARCH: ";
 	ShowPointer();
-	string str;
-	if (!getQuery(str))
+	string str; 
+	if (!getQuery(str, 12))
 	{
 		HidePointer();
 		return false;
@@ -32,18 +32,16 @@ bool search(baseData* data)
 	HidePointer();
 	system("cls");
 	printNote(NOTE_POSX, NOTE_POSY);
-	textColor(0, 13);
-	goToXY(22, 3); cout << "YOUR QUERY: " << str << endl;
-	drawBoard(20, 2, 2, 100, 13);
+	goToXY(14, 3); 
+	textColor(0, 13); cout << "YOUR QUERY: ";
+	textColor(0, 13); cout<< shortenName(str, 110) << endl;
+	drawBoard(10, 2, 2, 130, 13);
 	queryData q1 = queryData(str, true);
 	Operations::opWrapper(&q1, data, false);
 	vector<pair<int, double> > scores = q1.getScores();
 	vector<pair<int, double>> listFile;
 	listFile = q1.getScores();
-
-    while (listFile.size() > RESULT_LIMIT_PER_QUERY)
-        listFile.pop_back();
-
+	
 	drawBoard(FILES_POSX - 5, FILES_POSY - 2, FILES_CNT * 2 + 6, FILES_LEN + 10, 12);
 	if (listFile.size() == 0)
 	{
@@ -74,6 +72,7 @@ void option(int posX, int posY)
 	system("cls");
 	printNote(NOTE_POSX, NOTE_POSY);
 	printHCMUS(40, 8);
+	data.theLoadFromCSV();
 	printOptionList(cur, posX, posY);
 	drawBoard(OPTION_POSX - 5, OPTION_POSY - 2, 12, 20, 13);
 	while (true)
@@ -104,7 +103,7 @@ void option(int posX, int posY)
 						textColor(0, 4);
 						int x = 45, y = 22;
 						data.clear();
-						data.loadFromFiles("data", x, y);
+						data.loadFromFiles("D://CS163//Final project//FinalProject//FinalProject//data", x, y);
 						data.saveToFile(x, y);
 						goToXY(x, y); system("pause");
 					}
