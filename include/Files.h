@@ -12,9 +12,10 @@ private:
 	int posX = FILES_POSX, posY = FILES_POSY;
 	int cntFiles = FILES_CNT, lenFiles = FILES_LEN;
 	vector<File> files;
+	double time;
 public:
 	int numFiles = -1, curFiles = 0, totalFiles;
-	FilesList(vector<pair<int, double>> listFile, baseData* data, queryData* query)
+	FilesList(vector<pair<int, double>> listFile, baseData* data, queryData* query, double processingTime)
 	{
 		if (listFile.size() == 0) return;
 		totalFiles = listFile.size();
@@ -32,6 +33,7 @@ public:
 			file.words = query->getHighlightsByFileId(listFile[i].first);
 			files.push_back(file);
 		}
+		time = processingTime;
 	}
 	void clear()
 	{
@@ -40,7 +42,8 @@ public:
 	void printList(int num)
 	{
 		textColor(0, 14);
-		goToXY(posX + 7, posY); cout << "<<<TOP 10 FILES>>> (" << totalFiles << " founded)" << endl;
+		goToXY(posX + 1, posY);
+		cout << "<<<TOP 10 RESULTS>>> (" << totalFiles << " found in " << fixed << setprecision(2) << time << "s)" << endl;
 		textColor(0, 8);
 		for (int i = 0; i < numFiles; i++)
 			if (i == num)
@@ -88,7 +91,7 @@ public:
 					showFiles(curFiles);
 					drawBoard(FILES_POSX - 5, FILES_POSY - 2, FILES_CNT * 2 + 6, FILES_LEN + 10, 12);
 				}
-					
+
 			}
 		}
 		return true;

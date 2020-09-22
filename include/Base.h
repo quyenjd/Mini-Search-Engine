@@ -272,7 +272,8 @@ struct baseData
                     content.pop_back();
                     ext.pop_back();
                 }
-            content.pop_back(); // for the dot (.)
+            if (!content.empty() && content.back() == '.')
+                content.pop_back(); // for the dot (.)
 
             while (1)
             {

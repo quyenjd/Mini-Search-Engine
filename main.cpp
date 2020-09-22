@@ -1,10 +1,10 @@
+#undef UNICODE // Avoid VS compilation error
+
 #include <iostream>
 #include "Query.h"
 #include "Base.h"
 #include "Files.h"
 #include "Operations.h"
-
-#define yn(x) ((x) ? "[Y]" : "[N]")
 
 void option(int posX, int posY);
 bool search(baseData* data);
@@ -23,7 +23,7 @@ bool search(baseData* data)
 	drawBoard(38, 23, 3, 95, 13);
 	goToXY(40, 24);  cout << "ENTER YOUR SEARCH: ";
 	ShowPointer();
-	string str; 
+	string str;
 	if (!getQuery(str, 12))
 	{
 		HidePointer();
@@ -32,29 +32,29 @@ bool search(baseData* data)
 	HidePointer();
 	system("cls");
 	printNote(NOTE_POSX, NOTE_POSY);
-	goToXY(14, 3); 
+	goToXY(14, 3);
 	textColor(0, 13); cout << "YOUR QUERY: ";
 	textColor(0, 13); cout<< shortenName(str, 110) << endl;
 	drawBoard(10, 2, 2, 130, 13);
 	queryData q1 = queryData(str, true);
-	Operations::opWrapper(&q1, data, false);
+	double processingTime = Operations::opWrapper(&q1, data, false);
 	vector<pair<int, double> > scores = q1.getScores();
 	vector<pair<int, double>> listFile;
 	listFile = q1.getScores();
-	
+
 	drawBoard(FILES_POSX - 5, FILES_POSY - 2, FILES_CNT * 2 + 6, FILES_LEN + 10, 12);
 	if (listFile.size() == 0)
 	{
 		textColor(0, 4);
 		int x = FILES_POSX, y = FILES_POSY + 2;
-		goToXY(x, y++); cout << "[INFO] No data found that match your query!";
+		goToXY(x, y++); cout << "[INFO] No file matches your query!";
 		goToXY(x, y++); cout << "[INFO] Please try again!";
 		goToXY(x, y);	system("pause");
 		return true;
 	}
 	else
 	{
-		FilesList filesList(listFile, data, &q1);
+		FilesList filesList(listFile, data, &q1, processingTime);
 		filesList.printList(0);
 		while (true)
 		{
@@ -103,7 +103,7 @@ void option(int posX, int posY)
 						textColor(0, 4);
 						int x = 45, y = 22;
 						data.clear();
-						data.loadFromFiles("D://CS163//Final project//FinalProject//FinalProject//data", x, y);
+						data.loadFromFiles("data", x, y);
 						data.saveToFile(x, y);
 						goToXY(x, y); system("pause");
 					}

@@ -11,20 +11,23 @@
 
 namespace Operations
 {
-    // I use Ratcliff/Obershelp for finding similiarity between two vectors.
-    struct RatcliffObershelp
+    // I use my modified version of Ratcliff/Obershelp for finding similiarity between two vectors.
+    struct modifiedRatcliffObershelp
     {
     private:
-        int longestCommonSubarray(std::pair<int, int>& endp, int lA, int rA, int lB, int rB)
+        int longestCommonSubarray(std::pair<int, int>& endp)
         {
+            if (posA.empty() || posB.empty())
+                return 0;
+
             std::vector<std::vector<int> > lcs;
-            for (int i = 0; i <= rA; ++i)
-                lcs.push_back(std::move(std::vector<int>(rB + 1, 0)));
+            for (int i = 0; i <= *std::prev(posA.end()); ++i)
+                lcs.push_back(std::move(std::vector<int>(*std::prev(posB.end()) + 1, 0)));
 
             int res = 0, lineDelta = 0, idDelta = 0;
             endp.first = endp.second = -1;
-            for (int i = lA; i <= rA; ++i)
-                for (int j = lB; j <= rB; ++j)
+            for (int i : posA)
+                for (int j : posB)
                     if (A[i].first == B[j] || A[i].first == -1 || B[j] == -1)
                         if ((lcs[i][j] = (i && j ? lcs[i - 1][j - 1] : 0) + 1) >= res)
                         {
@@ -52,20 +55,21 @@ namespace Operations
             return res;
         }
 
-        int recursiveCaller(int lA, int rA, int lB, int rB)
+        int recursiveCaller()
         {
-            if (rA < lA || rB < lB)
-                return 0;
-
             std::pair<int, int> endp;
-            int lcs = longestCommonSubarray(endp, lA, rA, lB, rB);
+            int lcs = longestCommonSubarray(endp);
             if (lcs > 0)
             {
                 for (int i = endp.first - lcs + 1; i <= endp.first; ++i)
+                {
                     savedAPos.push_back(q->words[A[i].first].occurrences[fileId][A[i].second]);
+                    posA.erase(i);
+                }
+                for (int i = endp.second - lcs + 1; i <= endp.second; ++i)
+                    posB.erase(i);
 
-                lcs += recursiveCaller(lA, endp.first - lcs, lB, endp.second - lcs) +
-                    recursiveCaller(endp.first + 1, rA, endp.second + 1, rB);
+                lcs += recursiveCaller();
             }
             return lcs;
         }
@@ -76,10 +80,11 @@ namespace Operations
         int fileId;
         std::vector<pii> A;
         std::vector<int> B;
+        std::set<int> posA, posB;
         std::vector<baseNode> savedAPos;
 
     public:
-        RatcliffObershelp(queryData* _q, int _fileId, const std::vector<pii>& _A, const std::vector<int>& _B)
+        modifiedRatcliffObershelp(queryData* _q, int _fileId, const std::vector<pii>& _A, const std::vector<int>& _B)
         {
             savedAPos.clear();
             q = _q, fileId = _fileId, A = _A, B = _B;
@@ -110,7 +115,13 @@ namespace Operations
                 }
             }
 
-            _score = (double)2.0 * recursiveCaller(0, A.size() - 1, 0, B.size() - 1) / (A.size() + B.size());
+            posA.clear(); posB.clear();
+            for (size_t i = 0; i < A.size(); ++i)
+                posA.insert(i);
+            for (size_t i = 0; i < B.size(); ++i)
+                posB.insert(i);
+
+            _score = (double)2.0 * recursiveCaller() / (A.size() + B.size());
         }
 
         double score() const
@@ -168,7 +179,7 @@ namespace Operations
                     levQuery.push_back(q->words[i].isWild() ? -1 : i);
 
             // Calculate the score using Ratcliff/Obershelp formula
-            RatcliffObershelp matcher(q, fileId, occurs, levQuery);
+            modifiedRatcliffObershelp matcher(q, fileId, occurs, levQuery);
             it->second = matcher.score() + numWords;
 
             // Insert data for highlighting
@@ -330,10 +341,15 @@ namespace Operations
         q->matchIDs = std::move(tmp);
     }
 
-    void opWrapper(queryData* q, baseData* bd, bool includeStopwords)
+    // The only search function to call, returning the processing time of the query.
+    double opWrapper(queryData* q, baseData* bd, bool includeStopwords)
     {
+        double time = clock();
+
         opDataFilter(q, bd);
         opResultFilter(q, bd, includeStopwords);
+
+        return (clock() - time) / CLOCKS_PER_SEC;
     }
 }
 
