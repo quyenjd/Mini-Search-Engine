@@ -82,23 +82,29 @@ public:
 					curPages = lines.size() / cntLines;
 				return true;
 			}
+		len = 0;
 		return false;
 	}
-	void buildLine(Line& line, string str, int i, int j, int curLine)
+	void buildLine(Line& line, string str, int i, int j, int curLine, int& cnt, int& len)
 	{
 		line.str = str;
 		line.check = new bool[str.length() + 5];
 		int k = i;
 		while (k <= j)
 		{
-			int cnt = 0, len = 0;
-			if (isHL(k, curLine, len))
-				while (k <= j && cnt < len)
+			if (cnt < len || isHL(k, curLine, len))
+			{
+				while (k <= j && cnt <= len)
 				{
+					if (normal(str[k - i]) && ((k == i) || (k > i && !normal(str[k - i - 1])))) cnt++;
+					if (cnt > len) {
+						cnt = len = 0;
+						break;
+					}
 					line.check[k - i] = true;
-					if (!normal(str[k - i])) cnt++;
 					k++;
 				}
+			}
 			else
 			{
 				line.check[k - i] = false;
@@ -120,7 +126,7 @@ public:
 			return;
 		}
 		int j, len = line.length();
-		int cnt = 0;
+		int cnt = 0, count = 0, lenC = 0;
 		for (int i = 0; i < len;)
 		{
 			j = min(i + lenLines - 1, len - 1);
@@ -128,7 +134,7 @@ public:
 				while (i <= j && line[j] != char(32)) j--;
 			if (j < i) j = min(i + lenLines - 1, len - 1);
 			Line tmp;
-			buildLine(tmp, line.substr(i, j - i + 1), i, j, curLine);
+			buildLine(tmp, line.substr(i, j - i + 1), i, j, curLine, count, lenC);
 			if (isName)
 				name.push_back(tmp);
 			else
