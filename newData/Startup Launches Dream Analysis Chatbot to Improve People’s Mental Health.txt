@@ -1,0 +1,39 @@
+The Brand
+“It’s said that time heals all wounds, but my research suggests that time spent in dream sleep is what heals.” – Dr. Matthew Walker, professor of neuroscience and psychology
+Sansan Fibri has always believed that our dreams have the power to help us uncover and deal with emotional challenges. Most of us just need the right guidance to start this mental-health journey. That's where Sansan's AI chatbot for dream analysis comes in, called MyDreamChat. It's a guided self-therapy tool that helps users analyze their dreams in a conversational, quiz-like format. The goal is to lead them towards a resolution at the subconscious level for more sound mental health.
+
+While Sansan started on this concept in 2018, it's become more relevant than ever in the COVID-19 era. Sansan and her team surveyed over 10,000 MyDreamChat users a few months into the pandemic. They found that 40% of them used words like feeling trapped, hopeless, or powerless to describe their coronavirus-era dreams. But after taking part in the analysis process of the dreams via this mental health chatbot, 82% of respondents reported gaining new insight, which helped lead to feelings of hope and optimism.
+
+
+Here's the story of how Sansan designed a Facebook Messenger mental health chatbot for dream analysis. It brings this powerful therapy experience to tens of thousands of users, as part of a larger project to create a separate app for this purpose.
+
+The Problem
+Sansan explains that "effective mindset change and lasting healing occurs when we become conscious of our unconscious patterns and triggers, which drive 95% of our decision-making and behavior." Dream analysis is an effective tool on this journey for mental health, which is why she founded a startup called Wakefully in 2018.
+
+MyDreamChat AI 
+To build the complete product she dreamed of, however, Sansan needed investors. And to attract investors, she knew she needed to start with a minimum viable product (MVP). The purpose of the MVP would be to validate market interest and cultivate a motivated and engaged core audience. So she started by commissioning an iOS app for her MVP in 2018. But "it turned out to be an expensive UI that was not really usable and most definitely not scalable," Sansan shares, since she was the one doing all the analysis work behind the scenes.
+
+After that experiment, Sansan knew she needed a cheaper and more automated solution for her true MVP. "That's when I realized that the conversational nature of the app I envisioned and the Q&A in branching logic lend themselves pretty nicely to a chatbot, she says. "It seemed like a more affordable and scalable solution to test market interest. Thought at the time, I had no clue that I, the visionary/non-technical founder, would be able to build it myself!"
+
+The Solution
+Sansan tells us more about how she recognized that a Messenger chatbot would be an all-in-one solution for her MVP. "In the past I used lead quizzes that would send people to my landing page waitlist. No more! I saw how I could streamline the entire funnel: ad > quiz > landing > dream analysis using a Facebook bot." When she learned that she could use chatbot marketing to drive traffic, capture leads, retarget, and deliver value, she was sold. "Our entire value proposition, all in one chatbot!" says Sansan.
+
+"Our entire value proposition, all in one chatbot!" –Sansan Fibri, founder of Wakefully
+She turned to Chatfuel for this project right away. "In my research, Chatfuel kept coming up as The platform that can enable someone like me, lacking any coding skills, to build an awesome Messenger bot," Sansan tells us. "Using just Chatfuel and its online course, videos, and help docs, I built and launched v1 of MyDreamChat in about two weeks," she says. "I continue to learn, grow, analyze, and iterate—all due to the vast amount of information and tools Chatfuel provides."
+
+Here's how the MyDreamChat chatbot for mental health works:
+
+The user selects the type of dream they had (being chased, falling, etc.).
+They take a personalized quiz about the details of the dream they can remember and the feelings they associate with it.
+The free chatbot generates a thematic, personalized analysis of the dream for the user. The analysis explains what it "means" or symbolizes in the context of that person's life experience. "It delivers this dialogue using positive psychology to help reframe their thinking about this and other dreams in a therapeutic, healthier way," explains Sansan.
+Chatbot for analyzing dreams 
+"Using just Chatfuel and its online course, videos, and help docs, I built and launched v1 of MyDreamChat in about two weeks. I continue to learn, grow, analyze, and iterate—all due to the vast amount of information and tools Chatfuel provides." – Sansan Fibri, founder of Wakefully
+The Recipe
+Sansan used these Chatfuel tools and features to build the MyDreamChat Messenger bot:
+
+User attributes. They're "by far the most valuable feature for us in Chatfuel," Sansan tells us. She set up around 100 unique user attributes when she built MyDreamChat, so she could better understand the early-adopter audience. These attributes also help her tailor the content and frequency of messages to different user segments. She uses them to create powerful Lookalike audiences for Facebook ads, too. And of course, all this user data also helps Sansan inform the building of the separate app product.
+ Lookalike audiences for Facebook ads
+Sequences. The MyDreamChat bot reengages users with Sequences. It sends dream facts, tips on improving dream recall, and other useful information to users this way. Sansan shares that 75% of those who opted in to daily content messaging were still engaged after day three. For those who let the 24-hour contact window lapse, Sansan uses sponsored messages to reengage them.
+
+Facebook ads. Sansan uses click-to-Messenger ads on Facebook to bring new users to her bot. She's had excellent results with these so far, including 6% click-through rates (5x the benchmarks) and a cost per acquisition of $0.32 (many times lower than benchmarks). She uses Chatfuel's segment sync feature to create targeted ad audiences, and the native ads integration to manage her ads.
+Sansan also highlighted another powerful "tool" no bot-builder should overlook: well-crafted content. "With an empowering platform like Chatfuel, chatbot building becomes not about the technology, but about the voice and content," Sansan explains. As a former screenwriter and producer, she knew just how to give her Facebook chatbot a humanized persona and engaging dialogue. "The result of that," she continues, "is people feeling they’re having a real conversation with an empathetic, insightful, intuitive coach—all while knowing this is a bot."

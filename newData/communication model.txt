@@ -1,0 +1,38 @@
+The first major model for communication was introduced by Claude Shannon and Warren Weaver for Bell Laboratories in 1949[39] The original model was designed to mirror the functioning of radio and telephone technologies. Their initial model consisted of three primary parts: sender, channel, and receiver. The sender was the part of a telephone a person spoke into, the channel was the telephone itself, and the receiver was the part of the phone where one could hear the other person. Shannon and Weaver also recognized that often there is static that interferes with one listening to a telephone conversation, which they deemed noise.
+
+In a simple model, often referred to as the transmission model or standard view of communication, information or content (e.g. a message in natural language) is sent in some form (as spoken language) from an emitter (emisor in the picture)/sender/encoder to a destination/receiver/decoder. This common conception of communication simply views communication as a means of sending and receiving information. The strengths of this model are simplicity, generality, and quantifiability. Claude Shannon and Warren Weaver structured this model based on the following elements:
+
+An information source, which produces a message.
+A transmitter, which encodes the message into signals.
+A channel, to which signals are adapted for transmission.
+A noise source, which distorts the signal while it propagates through the channel.
+A receiver, which 'decodes' (reconstructs) the message from the signal.
+A destination, where the message arrives.
+Shannon and Weaver argued that there were three levels of problems for communication within this theory.
+
+The technical problem: how accurately can the message be transmitted?
+The semantic problem: how precisely is the meaning conveyed?
+The effectiveness problem: how effectively does the received meaning affect behavior?
+Daniel Chandler[40] critiques the transmission model by stating:
+
+It assumes communicators are isolated individuals.
+No allowance for differing purposes.
+No allowance for differing interpretations.
+No allowance for unequal power relations.
+No allowance for situational contexts.
+In 1960, David Berlo expanded on Shannon and Weaver's (1949) linear model of communication and created the SMCR Model of Communication.[41] The Sender-Message-Channel-Receiver Model of communication separated the model into clear parts and has been expanded upon by other scholars.
+
+Communication is usually described along a few major dimensions: message (what type of things are communicated), source/emisor/sender/encoder (from whom), form (in which form), channel (through which medium), destination/receiver/target/decoder (to whom). Wilbur Schram (1954) also indicated that we should also examine the impact that a message has (both desired and undesired) on the target of the message.[42] Between parties, communication includes acts that confer knowledge and experiences, give advice and commands, and ask questions. These acts may take many forms, in one of the various manners of communication. The form depends on the abilities of the group communicating. Together, communication content and form make messages that are sent towards a destination. The target can be oneself, another person or being, another entity (such as a corporation or group of beings).
+
+Communication can be seen as processes of information transmission with three levels of semiotic rules:
+
+Pragmatic (concerned with the relations between signs/expressions and their users).
+Semantic (study of relationships between signs and symbols and what they represent).
+Syntactic (formal properties of signs and symbols).
+Therefore, communication is social interaction where at least two interacting agents share a common set of signs and a common set of semiotic rules. This commonly held rule in some sense ignores autocommunication, including intrapersonal communication via diaries or self-talk, both secondary phenomena that followed the primary acquisition of communicative competences within social interactions.
+
+In light of these weaknesses, Barnlund (2008) proposed a transactional model of communication.[43] The basic premise of the transactional model of communication is that individuals are simultaneously engaging in the sending and receiving of messages.
+
+In a slightly more complex form a sender and a receiver are linked reciprocally. This second attitude of communication, referred to as the constitutive model or constructionist view, focuses on how an individual communicates as the determining factor of the way the message will be interpreted. Communication is viewed as a conduit; a passage in which information travels from one individual to another and this information becomes separate from the communication itself. A particular instance of communication is called a speech act. The sender's personal filters and the receiver's personal filters may vary depending upon different regional traditions, cultures, or gender; which may alter the intended meaning of message contents. In the presence of "communication noise" on the transmission channel (air, in this case), reception and decoding of content may be faulty, and thus the speech act may not achieve the desired effect. One problem with this encode-transmit-receive-decode model is that the processes of encoding and decoding imply that the sender and receiver each possess something that functions as a codebook, and that these two code books are, at the very least, similar if not identical. Although something like code books is implied by the model, they are nowhere represented in the model, which creates many conceptual difficulties.
+
+Theories of coregulation describe communication as a creative and dynamic continuous process, rather than a discrete exchange of information. Canadian media scholar Harold Innis had the theory that people use different types of media to communicate and which one they choose to use will offer different possibilities for the shape and durability of society.[44][page needed] His famous example of this is using ancient Egypt and looking at the ways they built themselves out of media with very different properties stone and papyrus. Papyrus is what he called 'Space Binding'. it made possible the transmission of written orders across space, empires and enables the waging of distant military campaigns and colonial administration. The other is stone and 'Time Binding', through the construction of temples and the pyramids can sustain their authority generation to generation, through this media they can change and shape communication in their society.[44][page needed]
