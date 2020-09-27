@@ -1,0 +1,80 @@
+The science of sleep
+  We spend a third of our lives doing it. Napoleon, Florence Nightingale and Margaret Thatcher got by on four hours a night. Thomas Edison claimed it was waste of time.
+
+  So why do we sleep? This is a question that has baffled scientists for centuries and the answer is, no one is really sure. Some believe that sleep gives the body a chance to recuperate from the day's activities but in reality, the amount of energy saved by sleeping for even eight hours is miniscule - about 50 kCal, the same amount of energy in a piece of toast.
+
+  With continued lack of sufficient sleep, the part of the brain that controls language, memory, planning and sense of time is severely affected, practically shutting down. In fact, 17 hours of sustained wakefulness leads to a decrease in performance equivalent to a blood alcohol level of 0.05% (two glasses of wine). This is the legal drink driving limit in the UK.
+
+  Research also shows that sleep-deprived individuals often have difficulty in responding to rapidly changing situations and making rational judgements. In real life situations, the consequences are grave and lack of sleep is said to have been be a contributory factor to a number of international disasters such as Exxon Valdez, Chernobyl, Three Mile Island and the Challenger shuttle explosion.
+
+  Sleep deprivation not only has a major impact on cognitive functioning but also on emotional and physical health. Disorders such as sleep apnoea which result in excessive daytime sleepiness have been linked to stress and high blood pressure. Research has also suggested that sleep loss may increase the risk of obesity because chemicals and hormones that play a key role in controlling appetite and weight gain are released during sleep.
+
+  What happens when we sleep?
+
+  What happens every time we get a bit of shut eye? Sleep occurs in a recurring cycle of 90 to 110 minutes and is divided into two categories: non-REM (which is further split into four stages) and REM sleep.
+
+  Non-REM sleep
+
+  Stage one: Light Sleep
+
+  During the first stage of sleep, we're half awake and half asleep. Our muscle activity slows down and slight twitching may occur. This is a period of light sleep, meaning we can be awakened easily at this stage.
+
+  Stage two: True Sleep
+
+  Within ten minutes of light sleep, we enter stage two, which lasts around 20 minutes. The breathing pattern and heart rate start to slow down. This period accounts for the largest part of human sleep.
+
+  Stages three and four: Deep Sleep
+
+  During stage three, the brain begins to produce delta waves, a type of wave that is large (high amplitude) and slow (low frequency). Breathing and heart rate are at their lowest levels.
+
+  Stage four is characterised by rhythmic breathing and limited muscle activity. If we are awakened during deep sleep we do not adjust immediately and often feel groggy and disoriented for several minutes after waking up. Some children experience bed-wetting, night terrors, or sleepwalking during this stage.
+
+  REM sleep
+
+  The first rapid eye movement (REM) period usually begins about 70 to 90 minutes after we fall asleep. We have around three to five REM episodes a night.
+
+  Although we are not conscious, the brain is very active - often more so than when we are awake. This is the period when most dreams occur. Our eyes dart around (hence the name), our breathing rate and blood pressure rise. However, our bodies are effectively paralysed, said to be nature's way of preventing us from acting out our dreams.
+
+  After REM sleep, the whole cycle begins again.
+
+  How much sleep is required?
+
+  There is no set amount of time that everyone needs to sleep, since it varies from person to person. Results from the sleep profiler indicate that people like to sleep anywhere between 5 and 11 hours, with the average being 7.75 hours.
+
+  Jim Horne from Loughborough University's Sleep Research Centre has a simple answer though: "The amount of sleep we require is what we need not to be sleepy in the daytime."
+
+  Even animals require varied amounts of sleep:
+
+Species
+
+Average total sleep time per day
+
+Python
+
+18 hrs
+
+Tiger
+
+15.8 hrs
+
+Cat
+
+12.1 hrs
+
+Chimpanzee
+
+9.7 hrs
+
+Sheep
+
+3.8 hrs
+
+African elephant  
+
+3.3 hrs
+
+Giraffe
+
+1.9 hr
+
+  The current world record for the longest period without sleep is 11 days, set by Randy Gardner in 1965. Four days into the research, he began hallucinating. This was followed by a delusion where he thought he was a famous footballer. Surprisingly, Randy was actually functioning quite well at the end of his research and he could still beat the scientist at pinball.
