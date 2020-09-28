@@ -1,6 +1,10 @@
 # Mini Search Engine
 This is our project of building a small document-search engine *entirely* in C++, which is a part of the CS163 university course. We proudly present a **user-friendly console application** that can handle a collection of text files and provide users with a variety of search operations with high precision.
 
+<p align="center">
+<img src="https://i.ibb.co/WHSKxhs/search-engine.png" alt="Search Engine">
+</p>
+
 > Click [here](Requirements.pdf) for full list of project requirements.
 
 ## Build

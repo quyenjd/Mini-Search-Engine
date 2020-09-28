@@ -103,7 +103,7 @@ void option(int posX, int posY)
 						textColor(0, 4);
 						int x = 45, y = 22;
 						data.clear();
-						data.loadFromFiles("data", x, y);
+						data.loadFromFiles("newData", x, y);
 						data.saveToFile(x, y);
 						goToXY(x, y); system("pause");
 					}
